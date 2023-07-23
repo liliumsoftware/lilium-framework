@@ -1,0 +1,46 @@
+stages:
+  - build
+
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+
+cache:
+  paths:
+    - .m2/
+
+before_script:
+  - mkdir -p $HOME/.m2/
+  - |
+    echo '
+    <settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+              xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+      <servers>
+        <server>
+          <id>gitlab-maven</id>
+          <configuration>
+            <httpHeaders>
+              <property>
+                <name>Job-Token</name>
+                <value>${env.CI_JOB_TOKEN}</value>
+              </property>
+            </httpHeaders>
+          </configuration>
+        </server>
+      </servers>
+    </settings>
+    ' > $HOME/.m2/settings.xml
+
+maven-build:
+  stage: build
+  image: ghcr.io/graalvm/jdk-community:17
+  tags:
+    - baho-framework
+  only:
+    refs:
+      - develop
+  artifacts:
+    paths:
+      - target/*.jar
+  script:
+    - ./mvnw clean package -B -DskipTests
+    - ./mvnw deploy -DskipTests
