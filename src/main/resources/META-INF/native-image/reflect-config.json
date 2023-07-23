@@ -1,0 +1,30 @@
+[
+  {
+    "name": "ir.baho.framework.repository.JpaRepositoryFactoryBean",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "ir.baho.framework.repository.impl.JpaCriteriaRepositoryImpl",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "ir.framework.framework.repository.MongoRepositoryFactoryBean",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "ir.framework.data.repository.impl.MongoCriteriaRepositoryImpl",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  }
+]

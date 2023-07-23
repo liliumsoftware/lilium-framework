@@ -1,0 +1,15 @@
+ir.baho.framework.validation.impl.AltitudeCheck
+ir.baho.framework.validation.impl.AngleCheck
+ir.baho.framework.validation.impl.ColorCheck
+ir.baho.framework.validation.impl.CompanyIdCheck
+ir.baho.framework.validation.impl.DigitCheck
+ir.baho.framework.validation.impl.ExactLengthCheck
+ir.baho.framework.validation.impl.ImeiCheck
+ir.baho.framework.validation.impl.IpCheck
+ir.baho.framework.validation.impl.LatitudeCheck
+ir.baho.framework.validation.impl.LongitudeCheck
+ir.baho.framework.validation.impl.NationalIdCheck
+ir.baho.framework.validation.impl.PasswordCheck
+ir.baho.framework.validation.impl.PhoneNumberCheck
+ir.baho.framework.validation.impl.PostalCodeCheck
+ir.baho.framework.validation.impl.UsernameCheck
