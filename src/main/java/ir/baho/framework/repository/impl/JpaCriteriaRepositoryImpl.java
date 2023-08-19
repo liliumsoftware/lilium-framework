@@ -12,7 +12,6 @@ import ir.baho.framework.metadata.PageMetadata;
 import ir.baho.framework.metadata.ProjectionMetadata;
 import ir.baho.framework.metadata.ProjectionPageMetadata;
 import ir.baho.framework.metadata.ReportMetadata;
-import ir.baho.framework.metadata.Search;
 import ir.baho.framework.metadata.StaticReportMetadata;
 import ir.baho.framework.metadata.SummaryPage;
 import ir.baho.framework.metadata.report.ReportDesign;
@@ -38,11 +37,14 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 import net.sf.jasperreports.engine.util.JRSaver;
-import org.hibernate.query.sqm.internal.DomainParameterXref;
+import org.hibernate.metamodel.mapping.MappingModelExpressible;
 import org.hibernate.query.sqm.internal.QuerySqmImpl;
+import org.hibernate.query.sqm.internal.SqmUtil;
+import org.hibernate.query.sqm.spi.SqmParameterMappingModelResolutionAccess;
+import org.hibernate.query.sqm.sql.SqmTranslation;
 import org.hibernate.query.sqm.sql.SqmTranslator;
 import org.hibernate.query.sqm.sql.internal.StandardSqmTranslator;
-import org.hibernate.sql.ast.spi.StandardSqlAstTranslator;
+import org.hibernate.query.sqm.tree.expression.SqmParameter;
 import org.hibernate.sql.ast.tree.select.SelectStatement;
 import org.hibernate.sql.exec.spi.JdbcOperation;
 import org.hibernate.sql.exec.spi.JdbcParameterBindings;
@@ -72,8 +74,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -238,7 +238,7 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
     @SneakyThrows
     @Override
     public JasperPrint report(StaticReportMetadata metadata, InputStream inputStream) {
-        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(5));
+        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE));
         metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
         try (Connection connection = getConnection()) {
             return JasperFillManager.fillReport(inputStream, metadata.getParams(), connection);
@@ -272,16 +272,13 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         Specification<E> spec = getSpecification(metadata, specification, expressions, new HashMap<>());
         TypedQuery<Object[]> query = getQuery(metadata, spec, expressions);
 
-        JasperReportBuilder reportBuilder = getDesign(metadata, design, messageResource, converters,
+        return getDesign(metadata, design, messageResource, converters,
                 expressions.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getJavaType())),
                 getDomainClass(), false)
                 .setReportName(metadata.getName())
-                .setVirtualizer(new JRFileVirtualizer(5))
+                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
                 .setLocale(metadata.getOptions().getLocale())
                 .setQuery(getQueryString(query));
-
-        assignParams(reportBuilder, metadata, expressions);
-        return reportBuilder;
     }
 
     @SneakyThrows
@@ -444,73 +441,29 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         SqmTranslator<SelectStatement> translator = new StandardSqmTranslator<>(
                 sqm.getSqmStatement(),
                 sqm.getQueryOptions(),
-                DomainParameterXref.from(sqm.getSqmStatement()),
+                sqm.getDomainParameterXref(),
                 sqm.getParameterBindings(),
                 sqm.getLoadQueryInfluencers(),
                 sqm.getSessionFactory(), true
         );
-        JdbcOperation select = new StandardSqlAstTranslator<>(sqm.getSessionFactory(),
-                translator.translate().getSqlAst()).translate(JdbcParameterBindings.NO_BINDINGS, sqm.getQueryOptions());
-        String sqlQuery = select.getSqlString();
-        StringBuilder sql = new StringBuilder();
-        Pattern pattern = Pattern.compile("\\?");
-        Matcher matcher = pattern.matcher(sqlQuery);
-        int i = 1;
-        while (matcher.find()) {
-            matcher.appendReplacement(sql, "\\$P{" + i++ + "}");
-        }
-        matcher.appendTail(sql);
-        return sql.toString();
-    }
-
-    protected void assignParams(JasperReportBuilder reportBuilder, ReportMetadata metadata, Map<String, Expression<?>> expressions) {
-        if (metadata.getSearch() != null) {
-            int param = 1;
-            for (Map.Entry<String, Expression<?>> expression : expressions.entrySet()) {
-                for (Search search : metadata.getSearch()) {
-                    if (expression.getKey().equals(search.getField())) {
-                        Class<?> type = getType(expressions.get(search.getField()).getJavaType());
-                        switch (search.getConstraint()) {
-                            case IS_NULL, IS_NOT_NULL -> {
-                            }
-                            case EQUALS_IGNORE_CASE, NOT_EQUALS_IGNORE_CASE ->
-                                    reportBuilder.addParameter(String.valueOf(param), type)
-                                            .setParameter(String.valueOf(param++), search.getValue().toString().toUpperCase());
-                            case CONTAINS, NOT_CONTAINS -> reportBuilder.addParameter(String.valueOf(param), type)
-                                    .setParameter(String.valueOf(param++), "%" + search.getValue() + "%");
-                            case STARTS_WITH, NOT_STARTS_WITH -> reportBuilder.addParameter(String.valueOf(param), type)
-                                    .setParameter(String.valueOf(param++), search.getValue() + "%");
-                            case ENDS_WITH, NOT_ENDS_WITH -> reportBuilder.addParameter(String.valueOf(param), type)
-                                    .setParameter(String.valueOf(param++), "%" + search.getValue());
-                            case CONTAINS_IGNORE_CASE, NOT_CONTAINS_IGNORE_CASE ->
-                                    reportBuilder.addParameter(String.valueOf(param), type)
-                                            .setParameter(String.valueOf(param++), "%" + search.getValue().toString().toUpperCase() + "%");
-                            case STARTS_WITH_IGNORE_CASE, NOT_STARTS_WITH_IGNORE_CASE ->
-                                    reportBuilder.addParameter(String.valueOf(param), type)
-                                            .setParameter(String.valueOf(param++), search.getValue().toString().toUpperCase() + "%");
-                            case ENDS_WITH_IGNORE_CASE, NOT_ENDS_WITH_IGNORE_CASE ->
-                                    reportBuilder.addParameter(String.valueOf(param), type)
-                                            .setParameter(String.valueOf(param++), "%" + search.getValue().toString().toUpperCase());
-                            case BETWEEN, NOT_BETWEEN -> {
-                                reportBuilder.addParameter(String.valueOf(param), type)
-                                        .setParameter(String.valueOf(param++), search.getValue());
-                                reportBuilder.addParameter(String.valueOf(param), type)
-                                        .setParameter(String.valueOf(param++), search.getAnother());
-                            }
-                            case IN, NOT_IN -> {
-                                for (Object value : search.getValues()) {
-                                    reportBuilder.addParameter(String.valueOf(param), type)
-                                            .setParameter(String.valueOf(param++), value);
-                                }
-                            }
-                            default -> reportBuilder.addParameter(String.valueOf(param), type)
-                                    .setParameter(String.valueOf(param++), search.getValue());
-                        }
-                        break;
+        SqmTranslation<SelectStatement> translation = translator.translate();
+        JdbcParameterBindings jdbcParameterBindings = SqmUtil.createJdbcParameterBindings(
+                sqm.getParameterBindings(),
+                sqm.getDomainParameterXref(),
+                SqmUtil.generateJdbcParamsXref(sqm.getDomainParameterXref(), translator),
+                sqm.getSession().getFactory().getRuntimeMetamodels().getMappingMetamodel(),
+                translation.getFromClauseAccess()::findTableGroup, new SqmParameterMappingModelResolutionAccess() {
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public <T> MappingModelExpressible<T> getResolvedMappingModelType(SqmParameter<T> parameter) {
+                        return (MappingModelExpressible<T>) translation.getSqmParameterMappingModelTypeResolutions().get(parameter);
                     }
-                }
-            }
-        }
+                },
+                sqm.getSession());
+
+        JdbcOperation select = new QueryTranslator(sqm.getSessionFactory(), translation.getSqlAst())
+                .translate(jdbcParameterBindings, sqm.getQueryOptions());
+        return select.getSqlString();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

@@ -78,6 +78,7 @@ import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleHtmlExporterConfiguration;
 import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 
@@ -102,6 +103,8 @@ import java.util.stream.Stream;
 
 public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
 
+    int VIRTUALIZER_MAX_SIZE = 300;
+
     void export(JasperReportBuilder builder, ExportType type, OutputStream outputStream);
 
     JasperPrint report(StaticReportMetadata metadata, InputStream inputStream);
@@ -115,7 +118,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
 
     @SneakyThrows
     default void export(Path path, ExportType type, OutputStream outputStream) {
-        export(JRLoader.loadJasperPrint(path.toFile(), new JRFileVirtualizer(5)), type, outputStream);
+        export(JRLoader.loadJasperPrint(path.toFile(), new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE)), type, outputStream);
     }
 
     @SneakyThrows
@@ -127,6 +130,9 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
         switch (type) {
             case pdf -> {
                 JRPdfExporter pdfExporter = new JRPdfExporter();
+                SimplePdfExporterConfiguration pdfExporterConfiguration = new SimplePdfExporterConfiguration();
+                pdfExporterConfiguration.setCompressed(true);
+                pdfExporter.setConfiguration(pdfExporterConfiguration);
                 pdfExporter.setExporterInput(new SimpleExporterInput(print));
                 pdfExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
                 pdfExporter.exportReport();

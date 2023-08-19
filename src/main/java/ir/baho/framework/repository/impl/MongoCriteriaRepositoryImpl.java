@@ -195,7 +195,7 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
     @SneakyThrows
     @Override
     public JasperPrint report(StaticReportMetadata metadata, InputStream inputStream) {
-        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(5));
+        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE));
         metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
         return JasperFillManager.fillReport(inputStream, metadata.getParams(), getDataSource(metadata.getQuery()));
     }
@@ -227,7 +227,7 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
         return getDesign(metadata, design, messageResource, converters, fields,
                 entityInformation.getJavaType(), true)
                 .setReportName(metadata.getName())
-                .setVirtualizer(new JRFileVirtualizer(5))
+                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
                 .setLocale(metadata.getOptions().getLocale())
                 .setDataSource(getDataSource(queryString));
     }
@@ -240,7 +240,7 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
         return getDesign(metadata, design, messageResource, converters, fields,
                 projection, true)
                 .setReportName(metadata.getName())
-                .setVirtualizer(new JRFileVirtualizer(5))
+                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
                 .setLocale(metadata.getOptions().getLocale())
                 .setDataSource(getDataSource(queryString));
     }
