@@ -47,24 +47,23 @@ public class EnumConverter<E extends Enum<E>> extends StringConverter<E> {
     public static <E extends Enum<E>> E getEnum(MessageResource messageResource, EnumType enumType, Class<E> type, String value) {
         if (enumType != null) {
             switch (enumType) {
-                case ORDINAL -> {
-                    return EnumSet.allOf(type).stream().filter(e -> value.equals(String.valueOf(e.ordinal())))
+                case NAME -> {
+                    return EnumSet.allOf(type).stream().filter(e -> value.equals(e.name()))
                             .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
                 }
                 case TEXT -> {
                     return EnumSet.allOf(type).stream().filter(e -> value.equals(messageResource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name())))
                             .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
                 }
-                case VALUE -> {
-                    if (type.isAssignableFrom(EnumValue.class)) {
-                        return EnumSet.allOf(type).stream().filter(e -> value.equals(String.valueOf(((EnumValue<?>) e).getValue())))
-                                .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
-                    }
-                }
             }
         }
-        return EnumSet.allOf(type).stream().filter(e -> value.equals(e.name()))
-                .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
+        if (EnumValue.class.isAssignableFrom(type)) {
+            return EnumSet.allOf(type).stream().filter(e -> value.equals(String.valueOf(((EnumValue<?>) e).getValue())))
+                    .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
+        } else {
+            return EnumSet.allOf(type).stream().filter(e -> value.equals(e.name()))
+                    .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
+        }
     }
 
     @SuppressWarnings("unchecked")

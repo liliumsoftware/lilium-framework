@@ -4,7 +4,6 @@ import ir.baho.framework.audit.JaversRepository;
 import ir.baho.framework.domain.Entity;
 import ir.baho.framework.domain.RevisionEntityMetadata;
 import ir.baho.framework.metadata.JaversMetadata;
-import ir.baho.framework.service.CurrentUser;
 import org.javers.core.Javers;
 import org.javers.core.commit.CommitMetadata;
 import org.javers.core.metamodel.object.SnapshotType;
@@ -33,14 +32,12 @@ import java.util.stream.Stream;
 public class JaversRepositoryImpl<E extends Entity<?, ID>, ID extends Serializable & Comparable<ID>> implements JaversRepository<E, ID> {
 
     private final EntityInformation<E, ?> entityInformation;
-    private final CurrentUser currentUser;
     private final AuthorProvider authorProvider;
     private final Javers javers;
     private final CommitPropertiesProvider commitPropertiesProvider;
 
-    public JaversRepositoryImpl(ApplicationContext applicationContext, EntityInformation<E, ?> entityInformation, CurrentUser currentUser) {
+    public JaversRepositoryImpl(ApplicationContext applicationContext, EntityInformation<E, ?> entityInformation) {
         this.entityInformation = entityInformation;
-        this.currentUser = currentUser;
         this.authorProvider = applicationContext.getBean(AuthorProvider.class);
         this.javers = applicationContext.getBean(Javers.class);
         this.commitPropertiesProvider = applicationContext.getBean(CommitPropertiesProvider.class);
@@ -109,12 +106,6 @@ public class JaversRepositoryImpl<E extends Entity<?, ID>, ID extends Serializab
         }
         Shadow<E> shadow = shadows.get(0);
         return Optional.of(Revision.of(getEntityMetadata(shadow.getCommitMetadata()), shadow.get()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends CurrentUser> T currentUser() {
-        return (T) currentUser;
     }
 
     private QueryBuilder getQuery(QueryBuilder queryBuilder, JaversMetadata metadata) {

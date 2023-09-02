@@ -70,7 +70,6 @@ public class JacksonConfig {
                     public void serialize(Enum e, JsonGenerator generator, SerializerProvider provider) throws IOException {
                         switch (options.getEnumType()) {
                             case NAME -> generator.writeString(e.name());
-                            case ORDINAL -> generator.writeNumber(e.ordinal());
                             case TEXT ->
                                     generator.writeString(resource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()));
                             default -> {
@@ -116,10 +115,9 @@ public class JacksonConfig {
             public void serialize(Enum e, JsonGenerator generator, SerializerProvider provider) throws IOException {
                 if (RequestContextHolder.getRequestAttributes() != null) {
                     try {
-                        EnumType enumType = EnumType.valueOf(getEnumType().orElse(EnumType.NAME.name()));
+                        EnumType enumType = EnumType.valueOf(getEnumType().orElse(e instanceof EnumValue ? EnumType.VALUE.name() : EnumType.NAME.name()));
                         switch (enumType) {
                             case NAME -> generator.writeString(e.name());
-                            case ORDINAL -> generator.writeNumber(e.ordinal());
                             case TEXT ->
                                     generator.writeString(messageResource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()));
                             default -> {

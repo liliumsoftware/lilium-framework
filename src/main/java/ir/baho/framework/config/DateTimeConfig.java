@@ -2,9 +2,7 @@ package ir.baho.framework.config;
 
 import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.i18n.DateTimes;
-import ir.baho.framework.metadata.UserOptions;
 import ir.baho.framework.service.CurrentUser;
-import ir.baho.framework.service.impl.OptionsCurrentUser;
 import ir.baho.framework.time.DateConverter;
 import ir.baho.framework.time.DateTimeConverter;
 import ir.baho.framework.time.DurationConverter;
@@ -18,7 +16,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @AutoConfiguration
 @RequiredArgsConstructor
@@ -26,17 +23,6 @@ public class DateTimeConfig {
 
     private final DateTimes dateTimes;
     private final CurrentUser currentUser;
-
-    public static List<StringConverter<?>> getUserOptionsConverters(UserOptions options) {
-        CurrentUser user = new OptionsCurrentUser(options);
-        DateTimes dateTimes = new DateTimes(user);
-        return List.of(
-                new DateConverter(dateTimes, user),
-                new DateTimeConverter(dateTimes, user),
-                new TimeConverter(dateTimes, user),
-                new DurationConverter(dateTimes, user)
-        );
-    }
 
     @Bean
     @ConditionalOnMissingBean(value = LocalDate.class, parameterizedContainer = StringConverter.class)

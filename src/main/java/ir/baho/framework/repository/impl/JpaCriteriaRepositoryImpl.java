@@ -19,7 +19,6 @@ import ir.baho.framework.repository.JpaCriteriaRepository;
 import ir.baho.framework.repository.specification.ExpressionPath;
 import ir.baho.framework.repository.specification.PredicateCriteriaSpecification;
 import ir.baho.framework.repository.specification.Predicates;
-import ir.baho.framework.service.CurrentUser;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.Tuple;
@@ -83,16 +82,13 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
 
     private final ProjectionFactory projectionFactory = new SpelAwareProxyProjectionFactory();
     private final EntityManager entityManager;
-    private final CurrentUser currentUser;
     private final MessageResource messageResource;
     private final List<StringConverter<? extends Comparable<?>>> converters;
 
     public JpaCriteriaRepositoryImpl(JpaEntityInformation<E, ?> entityInformation, EntityManager entityManager,
-                                     CurrentUser currentUser, MessageResource messageResource,
-                                     List<StringConverter<? extends Comparable<?>>> converters) {
+                                     MessageResource messageResource, List<StringConverter<? extends Comparable<?>>> converters) {
         super(entityInformation, entityManager);
         this.entityManager = entityManager;
-        this.currentUser = currentUser;
         this.messageResource = messageResource;
         this.converters = converters;
     }
@@ -238,7 +234,7 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
     @SneakyThrows
     @Override
     public JasperPrint report(StaticReportMetadata metadata, InputStream inputStream) {
-        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE));
+        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR));
         metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
         try (Connection connection = getConnection()) {
             return JasperFillManager.fillReport(inputStream, metadata.getParams(), connection);
@@ -261,12 +257,6 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         }
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends CurrentUser> T currentUser() {
-        return (T) currentUser;
-    }
-
     protected JasperReportBuilder getJasperReportBuilder(ReportMetadata metadata, ReportDesign design, PredicateCriteriaSpecification<E> specification) {
         Map<String, Expression<?>> expressions = new LinkedHashMap<>();
         Specification<E> spec = getSpecification(metadata, specification, expressions, new HashMap<>());
@@ -276,8 +266,8 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
                 expressions.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getJavaType())),
                 getDomainClass(), false)
                 .setReportName(metadata.getName())
-                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
-                .setLocale(metadata.getOptions().getLocale())
+                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR))
+                .setLocale(metadata.getLocale())
                 .setQuery(getQueryString(query));
     }
 

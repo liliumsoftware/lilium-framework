@@ -34,12 +34,6 @@ public class UserOptions implements Serializable {
 
     private EnumType enumType;
 
-    public boolean isRtl() {
-        String lang = locale.getLanguage();
-        if (lang != null && !lang.isBlank()) {
-            return lang.startsWith("fa") || lang.startsWith("ar");
-        }
-        return false;
-    }
+    private boolean rtl;
 
 }

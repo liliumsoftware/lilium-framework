@@ -3,7 +3,6 @@ package ir.baho.framework.service.impl;
 import ir.baho.framework.dto.BaseIdDto;
 import ir.baho.framework.dto.EntityMetadata;
 import ir.baho.framework.service.BaseService;
-import ir.baho.framework.service.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -20,11 +19,6 @@ public abstract class BaseServiceImpl<S extends BaseService<D, ID>, D extends Ba
         return (S) applicationContext.getBean(Stream.of(getClass().getInterfaces())
                 .filter(BaseService.class::isAssignableFrom).findAny()
                 .orElseThrow(() -> new IllegalStateException("Not a BaseService implementation")));
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <U extends CurrentUser> U currentUser() {
-        return (U) applicationContext.getBean(CurrentUser.class);
     }
 
     @Override

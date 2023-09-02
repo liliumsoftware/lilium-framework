@@ -21,7 +21,6 @@ import ir.baho.framework.repository.impl.mongo.MongoDbQuery;
 import ir.baho.framework.repository.specification.PredicateAggregateSpecification;
 import ir.baho.framework.repository.specification.PredicateMongoSpecification;
 import ir.baho.framework.repository.specification.SimpleSelections;
-import ir.baho.framework.service.CurrentUser;
 import lombok.SneakyThrows;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.jasperreports.engine.JRDataSource;
@@ -62,17 +61,14 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
 
     private final MongoEntityInformation<E, ID> entityInformation;
     private final MongoOperations mongoOperations;
-    private final CurrentUser currentUser;
     private final MessageResource messageResource;
     private final List<StringConverter<? extends Comparable<?>>> converters;
 
     public MongoCriteriaRepositoryImpl(MongoEntityInformation<E, ID> entityInformation, MongoOperations mongoOperations,
-                                       CurrentUser currentUser, MessageResource messageResource,
-                                       List<StringConverter<? extends Comparable<?>>> converters) {
+                                       MessageResource messageResource, List<StringConverter<? extends Comparable<?>>> converters) {
         super(entityInformation, mongoOperations);
         this.entityInformation = entityInformation;
         this.mongoOperations = mongoOperations;
-        this.currentUser = currentUser;
         this.messageResource = messageResource;
         this.converters = converters;
     }
@@ -212,12 +208,6 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
         export(builder.toJasperPrint(), type, outputStream);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends CurrentUser> T currentUser() {
-        return (T) currentUser;
-    }
-
     protected JasperReportBuilder getJasperReportBuilder(ReportMetadata metadata, ReportDesign design, PredicateMongoSpecification specification, SimpleSelections selections) {
         Map<String, Class<?>> fields = selections.apply();
         Query query = getQuery(metadata, specification).with(getSort(metadata));
@@ -228,7 +218,7 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
                 entityInformation.getJavaType(), true)
                 .setReportName(metadata.getName())
                 .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
-                .setLocale(metadata.getOptions().getLocale())
+                .setLocale(metadata.getLocale())
                 .setDataSource(getDataSource(queryString));
     }
 
@@ -241,7 +231,7 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
                 projection, true)
                 .setReportName(metadata.getName())
                 .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
-                .setLocale(metadata.getOptions().getLocale())
+                .setLocale(metadata.getLocale())
                 .setDataSource(getDataSource(queryString));
     }
 

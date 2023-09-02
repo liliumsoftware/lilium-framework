@@ -3,7 +3,6 @@ package ir.baho.framework.repository;
 import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.repository.impl.MongoRepositoryFactory;
-import ir.baho.framework.service.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -19,9 +18,6 @@ public class MongoRepositoryFactoryBean<T extends Repository<S, ID>, S, ID exten
     private ApplicationContext applicationContext;
 
     @Autowired
-    private CurrentUser currentUser;
-
-    @Autowired
     private MessageResource messageResource;
 
     @Autowired
@@ -33,7 +29,7 @@ public class MongoRepositoryFactoryBean<T extends Repository<S, ID>, S, ID exten
 
     @Override
     protected RepositoryFactorySupport getFactoryInstance(MongoOperations operations) {
-        return new MongoRepositoryFactory(applicationContext, operations, currentUser, messageResource, converters);
+        return new MongoRepositoryFactory(applicationContext, operations, messageResource, converters);
     }
 
 }

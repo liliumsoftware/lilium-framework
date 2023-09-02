@@ -9,7 +9,6 @@ import ir.baho.framework.metadata.Metadata;
 import ir.baho.framework.metadata.PageSortMetadata;
 import ir.baho.framework.metadata.Search;
 import ir.baho.framework.metadata.SortMetadata;
-import ir.baho.framework.service.CurrentUser;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,8 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface BaseRepository<E, ID> extends Repository<E, ID> {
-
-    <T extends CurrentUser> T currentUser();
 
     default void convert(Metadata metadata, Map<String, Class<?>> paths, Map<String, Constraint[]> constraints,
                          Class<?> domain, List<StringConverter<? extends Comparable<?>>> converters) {

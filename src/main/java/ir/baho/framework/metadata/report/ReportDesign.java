@@ -36,10 +36,10 @@ public class ReportDesign {
 
     private Style summaryStyle;
 
-    private Style reportDateTimeStyle;
+    private Style dateTimeStyle;
 
     @NotNull
-    private Position reportDateTimePosition = Position.TOP;
+    private Position dateTimePosition = Position.TOP;
 
     private Style usernameStyle;
 

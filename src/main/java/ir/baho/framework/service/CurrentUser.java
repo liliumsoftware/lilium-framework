@@ -27,9 +27,17 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
 
     EnumType getEnumType();
 
+    default boolean isRtl() {
+        String lang = getLocale().getLanguage();
+        if (lang != null && !lang.isBlank()) {
+            return lang.startsWith("fa") || lang.startsWith("ar");
+        }
+        return false;
+    }
+
     default UserOptions getOptions() {
         return new UserOptions(getUsername(), LocaleContextHolder.getLocale(), LocaleContextHolder.getTimeZone().toZoneId(),
-                getCalendarType(), getDateFormat(), getDateTimeFormat(), getTimeFormat(), getDurationType(), getEnumType());
+                getCalendarType(), getDateFormat(), getDateTimeFormat(), getTimeFormat(), getDurationType(), getEnumType(), isRtl());
     }
 
 }

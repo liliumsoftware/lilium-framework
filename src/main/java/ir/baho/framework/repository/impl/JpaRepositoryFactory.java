@@ -7,7 +7,6 @@ import ir.baho.framework.audit.impl.JaversRepositoryImpl;
 import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.repository.JpaCriteriaRepository;
-import ir.baho.framework.service.CurrentUser;
 import jakarta.persistence.EntityManager;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.springframework.context.ApplicationContext;
@@ -28,13 +27,11 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
     private final ApplicationContext applicationContext;
     private final EntityManager entityManager;
     private final RevisionEntityInformation revisionEntityInformation;
-    private final CurrentUser currentUser;
     private final MessageResource messageResource;
     private final List<StringConverter<?>> converters;
 
     public JpaRepositoryFactory(ApplicationContext applicationContext, EntityManager entityManager, Class<?> revisionEntityClass,
-                                CurrentUser currentUser, MessageResource messageResource,
-                                List<StringConverter<?>> converters) {
+                                MessageResource messageResource, List<StringConverter<?>> converters) {
         super(entityManager);
         this.applicationContext = applicationContext;
         this.entityManager = entityManager;
@@ -46,7 +43,6 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
         } else {
             this.revisionEntityInformation = new DefaultRevisionEntityInformation();
         }
-        this.currentUser = currentUser;
         this.messageResource = messageResource;
         this.converters = converters;
     }
@@ -55,7 +51,7 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
     protected JpaRepositoryImplementation<?, ?> getTargetRepository(RepositoryInformation information, EntityManager entityManager) {
         if (JpaCriteriaRepository.class.isAssignableFrom(information.getRepositoryInterface())) {
             JpaEntityInformation<?, Serializable> entityInformation = getEntityInformation(information.getDomainType());
-            return getTargetRepositoryViaReflection(information, entityInformation, entityManager, currentUser, messageResource, converters);
+            return getTargetRepositoryViaReflection(information, entityInformation, entityManager, messageResource, converters);
         }
         return super.getTargetRepository(information, entityManager);
     }
@@ -72,11 +68,11 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
     protected RepositoryComposition.RepositoryFragments getRepositoryFragments(RepositoryMetadata metadata) {
         if (JaversRepository.class.isAssignableFrom(metadata.getRepositoryInterface())) {
             Object javersFragment = instantiateClass(JaversRepositoryImpl.class,
-                    applicationContext, getEntityInformation(metadata.getDomainType()), currentUser);
+                    applicationContext, getEntityInformation(metadata.getDomainType()));
             return RepositoryComposition.RepositoryFragments.just(javersFragment).append(super.getRepositoryFragments(metadata));
         } else if (EnversRepository.class.isAssignableFrom(metadata.getRepositoryInterface())) {
             Object enversFragment = instantiateClass(EnversRepositoryImpl.class,
-                    getEntityInformation(metadata.getDomainType()), revisionEntityInformation, entityManager, currentUser, converters);
+                    getEntityInformation(metadata.getDomainType()), revisionEntityInformation, entityManager, converters);
             return RepositoryComposition.RepositoryFragments.just(enversFragment).append(super.getRepositoryFragments(metadata));
         }
         return super.getRepositoryFragments(metadata);

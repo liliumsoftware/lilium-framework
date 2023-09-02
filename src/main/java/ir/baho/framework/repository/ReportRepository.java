@@ -104,6 +104,7 @@ import java.util.stream.Stream;
 public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
 
     int VIRTUALIZER_MAX_SIZE = 300;
+    String VIRTUALIZER_TEMP_DIR = System.getProperty("java.io.tmpdir");
 
     void export(JasperReportBuilder builder, ExportType type, OutputStream outputStream);
 
@@ -118,7 +119,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
 
     @SneakyThrows
     default void export(Path path, ExportType type, OutputStream outputStream) {
-        export(JRLoader.loadJasperPrint(path.toFile(), new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE)), type, outputStream);
+        export(JRLoader.loadJasperPrint(path.toFile(), new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR)), type, outputStream);
     }
 
     @SneakyThrows
@@ -257,7 +258,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
         JasperReportBuilder builder = DynamicReports.report()
                 .setSummaryWithPageHeaderAndFooter(true)
                 .setWhenNoDataType(WhenNoDataType.BLANK_PAGE);
-        boolean rtl = metadata.getOptions().isRtl();
+        boolean rtl = metadata.isRtl();
 
         if (design.getTitle() != null) {
             TextFieldBuilder<String> title = DynamicReports.cmp.text(design.getTitle())
@@ -323,7 +324,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
         }
 
         TextFieldBuilder<String> username = DynamicReports.cmp
-                .text(messageResource.getMessage("report.username") + " " + metadata.getOptions().getUsername())
+                .text(messageResource.getMessage("report.username") + " " + metadata.getUsername())
                 .setValueFormatter(StringConverter.stringConverter());
         if (design.getUsernameStyle() != null) {
             username.setStyle(getStyle(design.getUsernameStyle()));
@@ -344,12 +345,12 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
         }
 
         TextFieldBuilder<?> dateTime = DynamicReports.cmp.text(metadata.getDateTimeFormatters().now());
-        if (design.getReportDateTimeStyle() != null) {
-            dateTime.setStyle(getStyle(design.getReportDateTimeStyle()));
+        if (design.getDateTimeStyle() != null) {
+            dateTime.setStyle(getStyle(design.getDateTimeStyle()));
         } else {
             dateTime.setStyle(getStyle(Styles.dateTime(rtl)));
         }
-        if (design.getReportDateTimePosition() == Position.TOP) {
+        if (design.getDateTimePosition() == Position.TOP) {
             builder.addPageHeader(dateTime);
         } else {
             builder.addPageFooter(dateTime);
@@ -412,7 +413,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
             if (design.getRowNumberStyle() != null) {
                 rowNumber.setStyle(getStyle(design.getRowNumberStyle()));
             } else {
-                rowNumber.setStyle(getStyle(Styles.column(metadata.getOptions().isRtl(), Long.class)));
+                rowNumber.setStyle(getStyle(Styles.column(metadata.isRtl(), Long.class)));
             }
             if (design.getRowNumberWidth() != null) {
                 rowNumber.setFixedWidth(design.getRowNumberWidth());
@@ -470,7 +471,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                     } else if (type == Duration.class) {
                         column.setValueFormatter(dateTimeFormatters.durationFormatter());
                     } else if (Enum.class.isAssignableFrom(type) && !EnumValue.class.isAssignableFrom(type)) {
-                        column.setValueFormatter(new EnumConverter<>(currentUser(), messageResource, type));
+                        column.setValueFormatter(new EnumConverter<>(metadata.getCurrentUser(), messageResource, type));
                     } else {
                         column.setValueFormatter(getConverter(type, converters));
                     }
@@ -495,7 +496,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                         if (reportColumn.getGroupStyle() != null) {
                             group.setStyle(getStyle(reportColumn.getGroupStyle()));
                         } else {
-                            group.setStyle(getStyle(Styles.group(metadata.getOptions().isRtl())));
+                            group.setStyle(getStyle(Styles.group(metadata.isRtl())));
                         }
                         columns.getGroups().add(group);
                     }
@@ -509,7 +510,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                 if (reportColumn.getStyle() != null) {
                     col.setStyle(getStyle(reportColumn.getStyle()));
                 } else {
-                    col.setStyle(getStyle(Styles.column(metadata.getOptions().isRtl(), type)));
+                    col.setStyle(getStyle(Styles.column(metadata.isRtl(), type)));
                 }
 
                 columns.getColumns().add(col);

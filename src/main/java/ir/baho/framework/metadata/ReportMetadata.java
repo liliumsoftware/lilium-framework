@@ -1,6 +1,5 @@
 package ir.baho.framework.metadata;
 
-import ir.baho.framework.metadata.report.DateTimeFormatters;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,8 +15,6 @@ public class ReportMetadata extends ProjectionMetadata {
 
     @NotBlank
     private String name;
-
-    private UserOptions options;
 
     public ReportMetadata(String name) {
         this.name = name;
@@ -36,13 +33,6 @@ public class ReportMetadata extends ProjectionMetadata {
     public ReportMetadata(String name, @Valid Search... search) {
         super(search);
         this.name = name;
-    }
-
-    public DateTimeFormatters getDateTimeFormatters() {
-        return new DateTimeFormatters(options.getLocale(),
-                options.getZoneId(), options.getCalendarType(),
-                options.getDateFormat(), options.getDateTimeFormat(),
-                options.getTimeFormat(), options.getDurationType());
     }
 
 }

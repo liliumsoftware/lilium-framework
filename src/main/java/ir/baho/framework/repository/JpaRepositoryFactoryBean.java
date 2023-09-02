@@ -3,7 +3,6 @@ package ir.baho.framework.repository;
 import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.repository.impl.JpaRepositoryFactory;
-import ir.baho.framework.service.CurrentUser;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -16,9 +15,6 @@ public class JpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID> extend
 
     @Autowired
     private ApplicationContext applicationContext;
-
-    @Autowired
-    private CurrentUser currentUser;
 
     @Autowired
     private MessageResource messageResource;
@@ -38,7 +34,7 @@ public class JpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID> extend
 
     @Override
     protected RepositoryFactorySupport createRepositoryFactory(EntityManager entityManager) {
-        return new JpaRepositoryFactory(applicationContext, entityManager, revisionEntityClass, currentUser, messageResource, converters);
+        return new JpaRepositoryFactory(applicationContext, entityManager, revisionEntityClass, messageResource, converters);
     }
 
 }

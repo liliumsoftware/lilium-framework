@@ -12,7 +12,6 @@ import ir.baho.framework.metadata.Metadata;
 import ir.baho.framework.metadata.Search;
 import ir.baho.framework.metadata.Sort;
 import ir.baho.framework.repository.specification.PredicateAuditSpecification;
-import ir.baho.framework.service.CurrentUser;
 import jakarta.persistence.EntityManager;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -64,16 +63,14 @@ public class EnversRepositoryImpl<E extends BaseEntitySimple<?, ID>, ID extends 
 
     private final EntityInformation<E, ?> entityInformation;
     private final EntityManager entityManager;
-    private final CurrentUser currentUser;
     private final List<StringConverter<? extends Comparable<?>>> converters;
 
     public EnversRepositoryImpl(JpaEntityInformation<E, ?> entityInformation,
                                 RevisionEntityInformation revisionEntityInformation, EntityManager entityManager,
-                                CurrentUser currentUser, List<StringConverter<? extends Comparable<?>>> converters) {
+                                List<StringConverter<? extends Comparable<?>>> converters) {
         super(entityInformation, revisionEntityInformation, entityManager);
         this.entityInformation = entityInformation;
         this.entityManager = entityManager;
-        this.currentUser = currentUser;
         this.converters = converters;
     }
 
@@ -113,12 +110,6 @@ public class EnversRepositoryImpl<E extends BaseEntitySimple<?, ID>, ID extends 
         List<Revision<N, E>> revisions = result.stream()
                 .map(objects -> createRevision(new QueryResult<>(objects))).collect(Collectors.toList());
         return new PageImpl<>(revisions, getPageable(metadata), count);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends CurrentUser> T currentUser() {
-        return (T) currentUser;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
