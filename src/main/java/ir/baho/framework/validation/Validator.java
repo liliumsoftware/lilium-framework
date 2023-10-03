@@ -21,7 +21,7 @@ public final class Validator {
     public static <T> boolean isValid(T t) {
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             jakarta.validation.Validator validator = factory.getValidator();
-            return validator.validate(t).size() == 0;
+            return validator.validate(t).isEmpty();
         }
     }
 

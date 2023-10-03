@@ -63,11 +63,11 @@ public class ReportDesign {
     private Boolean paginate;
 
     @Min(74)
-    @Max(3368)
+    @Max(4008)
     private int width = 595;
 
     @Min(74)
-    @Max(3368)
+    @Max(4008)
     private int height = 842;
 
     @Min(0)

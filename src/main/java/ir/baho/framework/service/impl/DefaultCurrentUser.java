@@ -36,7 +36,7 @@ public class DefaultCurrentUser implements CurrentUser {
     public Locale getLocale() {
         String locale = Optional.ofNullable(getToken("locale")).orElse(getHeader("Accept-Language"));
         if (locale != null) {
-            return new Locale(locale);
+            return Locale.of(locale);
         }
         return null;
     }

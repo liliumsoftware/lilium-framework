@@ -14,14 +14,14 @@
     "allDeclaredMethods": true
   },
   {
-    "name": "ir.framework.framework.repository.MongoRepositoryFactoryBean",
+    "name": "ir.baho.framework.repository.MongoRepositoryFactoryBean",
     "allPublicMethods": true,
     "allPublicConstructors": true,
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true
   },
   {
-    "name": "ir.framework.data.repository.impl.MongoCriteriaRepositoryImpl",
+    "name": "ir.baho.framework.repository.impl.MongoCriteriaRepositoryImpl",
     "allPublicMethods": true,
     "allPublicConstructors": true,
     "allDeclaredConstructors": true,

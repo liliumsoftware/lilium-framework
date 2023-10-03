@@ -31,6 +31,19 @@ public class MetadataArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        Metadata metadata = getMetadata(parameter);
+        metadata.setCurrentUser(new OptionsCurrentUser(currentUser.getOptions()));
+
+        WebDataBinder binder = binderFactory.createBinder(webRequest, metadata, parameter.getParameterName());
+        HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
+        if (servletRequest != null) {
+            ServletRequestDataBinder servletBinder = (ServletRequestDataBinder) binder;
+            servletBinder.bind(servletRequest);
+        }
+        return binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType(), parameter);
+    }
+
+    private Metadata getMetadata(MethodParameter parameter) {
         Metadata metadata;
         if (parameter.getParameterType().equals(PageMetadata.class)) {
             metadata = new PageMetadata();
@@ -47,15 +60,7 @@ public class MetadataArgumentResolver implements HandlerMethodArgumentResolver {
         } else {
             metadata = new Metadata();
         }
-        metadata.setCurrentUser(new OptionsCurrentUser(currentUser.getOptions()));
-
-        WebDataBinder binder = binderFactory.createBinder(webRequest, metadata, parameter.getParameterName());
-        HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
-        if (servletRequest != null) {
-            ServletRequestDataBinder servletBinder = (ServletRequestDataBinder) binder;
-            servletBinder.bind(servletRequest);
-        }
-        return binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType(), parameter);
+        return metadata;
     }
 
 }
