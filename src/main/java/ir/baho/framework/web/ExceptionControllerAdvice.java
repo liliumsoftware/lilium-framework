@@ -14,6 +14,7 @@ import ir.baho.framework.exception.NotModifiedException;
 import ir.baho.framework.exception.ObjectError;
 import ir.baho.framework.exception.PreconditionFailedException;
 import ir.baho.framework.exception.ServiceUnavailableException;
+import ir.baho.framework.exception.TransparentClientException;
 import ir.baho.framework.i18n.MessageResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,12 @@ import java.util.stream.Stream;
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private final MessageResource messageResource;
+
+    @ResponseBody
+    @ExceptionHandler(TransparentClientException.class)
+    public ResponseEntity<String> handleTransparentClientException(TransparentClientException e) {
+        return ResponseEntity.status(e.getStatus()).body(e.getMessage());
+    }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.CONFLICT)
