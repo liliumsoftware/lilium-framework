@@ -76,7 +76,7 @@ public class JaversRepositoryImpl<E extends Entity<?, ID>, ID extends Serializab
         if (shadows.isEmpty()) {
             return Optional.empty();
         }
-        Shadow<E> shadow = shadows.get(0);
+        Shadow<E> shadow = shadows.getFirst();
         return Optional.of(Revision.of(getEntityMetadata(shadow.getCommitMetadata()), shadow.get()));
     }
 
@@ -104,7 +104,7 @@ public class JaversRepositoryImpl<E extends Entity<?, ID>, ID extends Serializab
         if (shadows.isEmpty()) {
             return Optional.empty();
         }
-        Shadow<E> shadow = shadows.get(0);
+        Shadow<E> shadow = shadows.getFirst();
         return Optional.of(Revision.of(getEntityMetadata(shadow.getCommitMetadata()), shadow.get()));
     }
 

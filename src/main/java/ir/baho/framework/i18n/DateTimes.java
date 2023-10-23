@@ -94,6 +94,15 @@ public class DateTimes {
                 .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
     }
 
+    public LocalDateTime of(LocalDateTime dateTime, LocalTime time) {
+        return of(dateTime, time, LocaleContextHolder.getTimeZone().toZoneId());
+    }
+
+    public LocalDateTime of(LocalDateTime dateTime, LocalTime time, ZoneId zoneId) {
+        return dateTime.atZone(zoneId).with(time)
+                .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
     public LocalDate getStart(int year) {
         return getStart(year, currentUser.getCalendarType());
     }

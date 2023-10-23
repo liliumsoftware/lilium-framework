@@ -47,7 +47,7 @@ public abstract class StringConverter<E> extends AbstractValueFormatter<String, 
     }
 
     public Class<?> getType() {
-        return supportedTypes().get(0);
+        return supportedTypes().getFirst();
     }
 
     public boolean isSupported(Class<?> clas) {

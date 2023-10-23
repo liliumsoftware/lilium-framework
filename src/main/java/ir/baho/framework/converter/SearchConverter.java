@@ -53,7 +53,7 @@ public class SearchConverter implements Converter<String, Search> {
 
         if (constraint == Constraint.BETWEEN || constraint == Constraint.NOT_BETWEEN) {
             if (valuesPart.size() == 2) {
-                return new Search(field, constraint, valuesPart.get(0), valuesPart.get(1));
+                return new Search(field, constraint, valuesPart.getFirst(), valuesPart.get(1));
             } else {
                 return new Search(null, constraint);
             }
@@ -63,7 +63,7 @@ public class SearchConverter implements Converter<String, Search> {
             return new Search(field, constraint, new ArrayList<>(valuesPart));
         }
 
-        return new Search(field, constraint, valuesPart.get(0));
+        return new Search(field, constraint, valuesPart.getFirst());
     }
 
 }

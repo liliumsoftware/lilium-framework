@@ -138,32 +138,20 @@ public abstract class ExcelWriter extends BaseWriter {
             for (Object value : values) {
                 Integer colNum = this.columnNumbers.get(row);
                 XSSFCell cell = row.createCell(colNum, this.getCellType(value));
-                if (value == null) {
-                    cell.setCellValue((String) null);
-                } else if (value instanceof String) {
-                    cell.setCellValue(convert(String.class, value));
-                } else if (value instanceof Boolean) {
-                    cell.setCellValue((Boolean) value);
-                } else if (value instanceof Double) {
-                    cell.setCellValue((Double) value);
-                } else if (value instanceof Long) {
-                    cell.setCellValue((Long) value);
-                } else if (value instanceof Integer) {
-                    cell.setCellValue((Integer) value);
-                } else if (value instanceof RichTextString) {
-                    cell.setCellValue((RichTextString) value);
-                } else if (value instanceof LocalDate) {
-                    cell.setCellValue(convert(LocalDate.class, value));
-                } else if (value instanceof LocalDateTime) {
-                    cell.setCellValue(convert(LocalDateTime.class, value));
-                } else if (value instanceof LocalTime) {
-                    cell.setCellValue(convert(LocalTime.class, value));
-                } else if (value instanceof Duration) {
-                    cell.setCellValue(convert(Duration.class, value));
-                } else if (value instanceof Enum<?> e) {
-                    cell.setCellValue(convert(e.getDeclaringClass(), value));
-                } else {
-                    throw new IllegalArgumentException("Type not supported for object: " + value);
+                switch (value) {
+                    case null -> cell.setCellValue((String) null);
+                    case String s -> cell.setCellValue(convert(String.class, value));
+                    case Boolean b -> cell.setCellValue(b);
+                    case Double v -> cell.setCellValue(v);
+                    case Long l -> cell.setCellValue(l);
+                    case Integer i -> cell.setCellValue(i);
+                    case RichTextString richTextString -> cell.setCellValue(richTextString);
+                    case LocalDate localDate -> cell.setCellValue(convert(LocalDate.class, value));
+                    case LocalDateTime localDateTime -> cell.setCellValue(convert(LocalDateTime.class, value));
+                    case LocalTime localTime -> cell.setCellValue(convert(LocalTime.class, value));
+                    case Duration duration -> cell.setCellValue(convert(Duration.class, value));
+                    case Enum<?> e -> cell.setCellValue(convert(e.getDeclaringClass(), value));
+                    default -> throw new IllegalArgumentException("Type not supported for object: " + value);
                 }
                 this.columnNumbers.put(row, colNum + 1);
             }
