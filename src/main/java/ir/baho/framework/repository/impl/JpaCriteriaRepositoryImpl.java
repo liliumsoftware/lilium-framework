@@ -51,6 +51,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.repository.support.CrudMethodMetadata;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -82,6 +83,7 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
 
     private final ProjectionFactory projectionFactory = new SpelAwareProxyProjectionFactory();
     private final EntityManager entityManager;
+    private final PersistenceProvider provider;
     private final MessageResource messageResource;
     private final List<StringConverter<? extends Comparable<?>>> converters;
 
@@ -89,12 +91,13 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
                                      MessageResource messageResource, List<StringConverter<? extends Comparable<?>>> converters) {
         super(entityInformation, entityManager);
         this.entityManager = entityManager;
+        this.provider = PersistenceProvider.fromEntityManager(entityManager);
         this.messageResource = messageResource;
         this.converters = converters;
     }
 
-    static Long executeCountQuery(TypedQuery<Long> query) {
-        Assert.notNull(query, "TypedQuery must not be null!");
+    private static long executeCountQuery(TypedQuery<Long> query) {
+        Assert.notNull(query, "TypedQuery must not be null");
 
         List<Long> totals = query.getResultList();
         long total = 0L;
@@ -392,14 +395,14 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         return expressions.toArray(Expression<?>[]::new);
     }
 
-    protected <S, U> Root<U> applySpecificationToCriteria(@Nullable Specification<U> spec, Class<U> domainClass, CriteriaQuery<S> query) {
-        Assert.notNull(domainClass, "Domain class must not be null!");
-        Assert.notNull(query, "CriteriaQuery must not be null!");
+    protected <S, U> void applySpecificationToCriteria(@Nullable Specification<U> spec, Class<U> domainClass, CriteriaQuery<S> query) {
+        Assert.notNull(domainClass, "Domain class must not be null");
+        Assert.notNull(query, "CriteriaQuery must not be null");
 
         Root<U> root = query.from(domainClass);
 
         if (spec == null) {
-            return root;
+            return;
         }
 
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -409,7 +412,6 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
             query.where(predicate);
         }
 
-        return root;
     }
 
     protected <S> TypedQuery<S> applyRepositoryMethodMetadata(TypedQuery<S> query) {
@@ -422,6 +424,9 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         TypedQuery<S> toReturn = type == null ? query : query.setLockMode(type);
 
         getQueryHints().withFetchGraphs(entityManager).forEach(query::setHint);
+        if (metadata.getComment() != null && provider.getCommentHintKey() != null) {
+            query.setHint(provider.getCommentHintKey(), provider.getCommentHintValue(metadata.getComment()));
+        }
 
         return toReturn;
     }
@@ -655,10 +660,14 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
                 }
             }
             if (metadata.isAnd()) {
-                cq.having(cb.and(havingPredicates.toArray(Predicate[]::new)));
+                if (!havingPredicates.isEmpty()) {
+                    cq.having(cb.and(havingPredicates.toArray(Predicate[]::new)));
+                }
                 return cb.and(wherePredicates.toArray(Predicate[]::new));
             } else {
-                cq.having(cb.or(havingPredicates.toArray(Predicate[]::new)));
+                if (!havingPredicates.isEmpty()) {
+                    cq.having(cb.or(havingPredicates.toArray(Predicate[]::new)));
+                }
                 return cb.or(wherePredicates.toArray(Predicate[]::new));
             }
         };

@@ -56,7 +56,7 @@ public class JasperOdtExporter extends JROdtExporter {
             setCurrentExporterInputItem(item);
 
             List<JRPrintPage> pages = jasperPrint.getPages();
-            if (pages != null && pages.size() > 0) {
+            if (pages != null && !pages.isEmpty()) {
                 PageRange pageRange = getPageRange();
                 int startPageIndex = (pageRange == null || pageRange.getStartPageIndex() == null) ? 0 : pageRange.getStartPageIndex();
                 int endPageIndex = (pageRange == null || pageRange.getEndPageIndex() == null) ? (pages.size() - 1) : pageRange.getEndPageIndex();

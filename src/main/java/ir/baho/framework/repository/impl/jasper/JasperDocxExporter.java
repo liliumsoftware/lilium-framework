@@ -128,7 +128,7 @@ public class JasperDocxExporter extends JRDocxExporter {
             emptyPageState = false;
 
             List<JRPrintPage> pages = jasperPrint.getPages();
-            if (pages != null && pages.size() > 0) {
+            if (pages != null && !pages.isEmpty()) {
                 PageRange pageRange = getPageRange();
                 startPageIndex = (pageRange == null || pageRange.getStartPageIndex() == null) ? 0 : pageRange.getStartPageIndex();
                 endPageIndex = (pageRange == null || pageRange.getEndPageIndex() == null) ? (pages.size() - 1) : pageRange.getEndPageIndex();
@@ -179,7 +179,7 @@ public class JasperDocxExporter extends JRDocxExporter {
         docxFontTableRelsHelper.close();
 
         String password = getCurrentConfiguration().getEncryptionPassword();
-        if (password == null || password.trim().length() == 0) {
+        if (password == null || password.trim().isEmpty()) {
             docxZip.zipEntries(os);
         } else {
             OoxmlEncryptUtil.zipEntries(docxZip, os, password);

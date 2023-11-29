@@ -32,9 +32,9 @@ public class TupleConverter implements Converter<Object, Object> {
         List<TupleElement<?>> elements = tuple.getElements();
 
         if (elements.size() == 1) {
-            Object value = tuple.get(elements.get(0));
+            Object value = tuple.get(elements.getFirst());
 
-            if (type.isInstance(value) || value == null) {
+            if (type.getDomainType().isInstance(value) || type.isInstance(value) || value == null) {
                 return value;
             }
         }

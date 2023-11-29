@@ -425,7 +425,7 @@ public class JasperPptxExporter extends JRPptxExporter {
 
             context.next(attributes, runText);
 
-            if (runText.length() > 0) {
+            if (!runText.isEmpty()) {
                 String bulletText = JRStyledTextUtil.getIndentedBulletText(context);
 
                 String text = (bulletText == null ? "" : bulletText) + runText;
@@ -751,7 +751,7 @@ public class JasperPptxExporter extends JRPptxExporter {
         frameIndexStack.add(elementIndex);
 
         List<JRPrintElement> elements = frame.getElements();
-        if (elements != null && elements.size() > 0) {
+        if (elements != null && !elements.isEmpty()) {
             for (int i = 0; i < elements.size(); i++) {
                 JRPrintElement element = elements.get(i);
 

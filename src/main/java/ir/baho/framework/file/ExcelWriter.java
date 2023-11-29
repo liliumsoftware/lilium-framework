@@ -140,16 +140,16 @@ public abstract class ExcelWriter extends BaseWriter {
                 XSSFCell cell = row.createCell(colNum, this.getCellType(value));
                 switch (value) {
                     case null -> cell.setCellValue((String) null);
-                    case String s -> cell.setCellValue(convert(String.class, value));
+                    case String s -> cell.setCellValue(convert(String.class, s));
                     case Boolean b -> cell.setCellValue(b);
                     case Double v -> cell.setCellValue(v);
                     case Long l -> cell.setCellValue(l);
                     case Integer i -> cell.setCellValue(i);
                     case RichTextString richTextString -> cell.setCellValue(richTextString);
-                    case LocalDate localDate -> cell.setCellValue(convert(LocalDate.class, value));
-                    case LocalDateTime localDateTime -> cell.setCellValue(convert(LocalDateTime.class, value));
-                    case LocalTime localTime -> cell.setCellValue(convert(LocalTime.class, value));
-                    case Duration duration -> cell.setCellValue(convert(Duration.class, value));
+                    case LocalDate localDate -> cell.setCellValue(convert(LocalDate.class, localDate));
+                    case LocalDateTime localDateTime -> cell.setCellValue(convert(LocalDateTime.class, localDateTime));
+                    case LocalTime localTime -> cell.setCellValue(convert(LocalTime.class, localTime));
+                    case Duration duration -> cell.setCellValue(convert(Duration.class, duration));
                     case Enum<?> e -> cell.setCellValue(convert(e.getDeclaringClass(), value));
                     default -> throw new IllegalArgumentException("Type not supported for object: " + value);
                 }

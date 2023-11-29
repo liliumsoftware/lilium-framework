@@ -347,7 +347,7 @@ public class JasperRtfExporter extends JRRtfExporter {
 
             context.next(styledTextAttributes, runText);
 
-            if (runText.length() > 0) {
+            if (!runText.isEmpty()) {
                 String bulletText = JRStyledTextUtil.getIndentedBulletText(context);
 
                 exportStyledTextRun(styledTextAttributes, (bulletText == null ? "" : bulletText) + runText, getTextLocale(text), text.getBackcolor());
