@@ -10,6 +10,7 @@ import ir.baho.framework.dto.Tree;
 import ir.baho.framework.exception.NotModifiedException;
 import ir.baho.framework.exception.PreconditionFailedException;
 import ir.baho.framework.i18n.MessageResource;
+import ir.baho.framework.metadata.SummaryCollection;
 import ir.baho.framework.metadata.SummaryPage;
 import ir.baho.framework.service.CurrentUser;
 import lombok.SneakyThrows;
@@ -124,11 +125,20 @@ public abstract class BaseController<C extends BaseController<C>> {
     }
 
     protected <D> CollectionModel<EntityModel<D>> toModel(Collection<D> collection, Link link, Function<D, Link> links) {
-        return CollectionModel.of(collection.stream().map(d -> EntityModel.of(d).add(links.apply(d))).toList()).add(link);
+        CollectionModel<EntityModel<D>> collectionModel = CollectionModel.of(collection.stream().map(d -> EntityModel.of(d).add(links.apply(d))).toList()).add(link);
+        if (collection instanceof SummaryCollection<D, ?> summaryCollection) {
+            return new SummaryCollectionModel<>(collectionModel, summaryCollection.getSummary());
+        }
+        return collectionModel;
     }
 
     protected <D> CollectionModel<EntityModel<D>> toModel(Collection<D> collection, Link link) {
-        return CollectionModel.of(collection.stream().map(EntityModel::of).toList()).add(link);
+        CollectionModel<EntityModel<D>> collectionModel = CollectionModel.of(collection.stream().map(EntityModel::of).toList()).add(link);
+        if (collection instanceof SummaryCollection<D, ?> summaryCollection) {
+            return new SummaryCollectionModel<>(collectionModel, summaryCollection.getSummary());
+        }
+        return collectionModel;
+
     }
 
     @SuppressWarnings("unchecked")
