@@ -21,7 +21,7 @@ public class DateDeserializer extends JsonDeserializer<LocalDate> implements Con
     @SneakyThrows
     @Override
     public LocalDate convert(String date) {
-        String format = currentUser.getDateFormat();
+        String format = currentUser.dateFormat();
         return dateTimes.parseDate(date, format);
     }
 

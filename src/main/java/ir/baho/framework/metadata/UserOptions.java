@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Locale;
 
 @Data
@@ -33,6 +34,8 @@ public class UserOptions implements Serializable {
     private DurationType durationType;
 
     private EnumType enumType;
+
+    private List<String> roles;
 
     private boolean rtl;
 

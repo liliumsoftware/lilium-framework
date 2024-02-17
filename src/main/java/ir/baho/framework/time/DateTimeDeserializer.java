@@ -21,7 +21,7 @@ public class DateTimeDeserializer extends JsonDeserializer<LocalDateTime> implem
     @SneakyThrows
     @Override
     public LocalDateTime convert(String localDateTime) {
-        return dateTimes.parseDateTime(localDateTime, currentUser.getDateTimeFormat());
+        return dateTimes.parseDateTime(localDateTime, currentUser.dateTimeFormat());
     }
 
     @Override

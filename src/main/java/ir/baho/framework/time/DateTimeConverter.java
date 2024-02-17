@@ -22,12 +22,12 @@ public class DateTimeConverter extends StringConverter<LocalDateTime> {
 
     @SneakyThrows
     public LocalDateTime convert(String source) {
-        return dateTimes.parseDateTime(source, currentUser.getDateTimeFormat());
+        return dateTimes.parseDateTime(source, currentUser.dateTimeFormat());
     }
 
     @Override
     public String print(LocalDateTime value, Locale locale) {
-        return Strings.getText(dateTimes.format(value, currentUser.getDateTimeFormat()), locale);
+        return Strings.getText(dateTimes.format(value, currentUser.dateTimeFormat()), locale);
     }
 
 }

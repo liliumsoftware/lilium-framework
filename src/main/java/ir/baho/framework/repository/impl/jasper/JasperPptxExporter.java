@@ -763,7 +763,7 @@ public class JasperPptxExporter extends JRPptxExporter {
             }
         }
 
-        frameIndexStack.remove(frameIndexStack.size() - 1);
+        frameIndexStack.removeLast();
 
         restoreElementOffsets();
     }

@@ -22,13 +22,13 @@ public class DateConverter extends StringConverter<LocalDate> {
 
     @SneakyThrows
     public LocalDate convert(String source) {
-        String format = currentUser.getDateFormat();
+        String format = currentUser.dateFormat();
         return dateTimes.parseDate(source, format);
     }
 
     @Override
     public String print(LocalDate value, Locale locale) {
-        return Strings.getText(dateTimes.format(value, currentUser.getDateFormat()), locale);
+        return Strings.getText(dateTimes.format(value, currentUser.dateFormat()), locale);
     }
 
 }

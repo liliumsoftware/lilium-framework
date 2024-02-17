@@ -38,23 +38,23 @@ public class FeignConfig implements FeignFormatterRegistrar {
         return requestTemplate -> {
             requestTemplate.header(HttpHeaders.ACCEPT_LANGUAGE, LocaleContextHolder.getLocale().toString());
             requestTemplate.header(Headers.TIME_ZONE, LocaleContextHolder.getTimeZone().getID());
-            if (currentUser.getCalendarType() != null) {
-                requestTemplate.header(Headers.CALENDAR_TYPE, currentUser.getCalendarType().name());
+            if (currentUser.calendarType() != null) {
+                requestTemplate.header(Headers.CALENDAR_TYPE, currentUser.calendarType().name());
             }
-            if (currentUser.getDateFormat() != null) {
-                requestTemplate.header(Headers.DATE_FORMAT, currentUser.getDateFormat());
+            if (currentUser.dateFormat() != null) {
+                requestTemplate.header(Headers.DATE_FORMAT, currentUser.dateFormat());
             }
-            if (currentUser.getDateTimeFormat() != null) {
-                requestTemplate.header(Headers.DATETIME_FORMAT, currentUser.getDateTimeFormat());
+            if (currentUser.dateTimeFormat() != null) {
+                requestTemplate.header(Headers.DATETIME_FORMAT, currentUser.dateTimeFormat());
             }
-            if (currentUser.getTimeFormat() != null) {
-                requestTemplate.header(Headers.TIME_FORMAT, currentUser.getTimeFormat());
+            if (currentUser.timeFormat() != null) {
+                requestTemplate.header(Headers.TIME_FORMAT, currentUser.timeFormat());
             }
-            if (currentUser.getDurationType() != null) {
-                requestTemplate.header(Headers.DURATION_TYPE, currentUser.getDurationType().name());
+            if (currentUser.durationType() != null) {
+                requestTemplate.header(Headers.DURATION_TYPE, currentUser.durationType().name());
             }
-            if (currentUser.getEnumType() != null) {
-                requestTemplate.header(Headers.ENUM_TYPE, currentUser.getEnumType().name());
+            if (currentUser.enumType() != null) {
+                requestTemplate.header(Headers.ENUM_TYPE, currentUser.enumType().name());
             }
         };
     }

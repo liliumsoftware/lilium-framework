@@ -53,7 +53,7 @@ public class JasperXlsxExporter extends JRXlsxExporter {
         drawingHelper = new XlsxDrawingHelper(jasperReportsContext, drawingWriter, drawingRelsHelper);
 
         cellHelper = new XlsxCellHelper(jasperReportsContext, sheetWriter, styleHelper);
-        runHelper = new XlsxRunHelper(jasperReportsContext, sheetWriter, getExporterKey());
+        runHelper = new XlsxRunHelper(jasperReportsContext, getExporterKey());
 
         boolean showGridlines = true;
         if (sheetInfo.sheetShowGridlines == null) {

@@ -19,7 +19,7 @@ public class TimeDeserializer extends JsonDeserializer<LocalTime> implements Con
 
     @Override
     public LocalTime convert(String source) {
-        return dateTimes.parseTime(source, currentUser.getTimeFormat());
+        return dateTimes.parseTime(source, currentUser.timeFormat());
     }
 
     @Override

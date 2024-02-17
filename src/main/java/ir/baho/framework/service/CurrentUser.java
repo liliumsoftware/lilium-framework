@@ -7,37 +7,62 @@ import ir.baho.framework.time.DurationType;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.i18n.TimeZoneAwareLocaleContext;
 
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
+
 public interface CurrentUser extends TimeZoneAwareLocaleContext {
 
-    default String getId() {
-        return getUsername();
+    default String id() {
+        return username();
     }
 
-    String getUsername();
+    String username();
 
-    CalendarType getCalendarType();
+    Locale locale();
 
-    String getDateFormat();
+    ZoneId zoneId();
 
-    String getDateTimeFormat();
+    CalendarType calendarType();
 
-    String getTimeFormat();
+    String dateFormat();
 
-    DurationType getDurationType();
+    String dateTimeFormat();
 
-    EnumType getEnumType();
+    String timeFormat();
+
+    DurationType durationType();
+
+    EnumType enumType();
+
+    List<String> roles();
+
+    @Override
+    default Locale getLocale() {
+        return locale();
+    }
+
+    @Override
+    default TimeZone getTimeZone() {
+        ZoneId zoneId = zoneId();
+        return zoneId != null ? TimeZone.getTimeZone(zoneId) : null;
+    }
 
     default boolean isRtl() {
-        String lang = getLocale().getLanguage();
-        if (lang != null && !lang.isBlank()) {
-            return lang.startsWith("fa") || lang.startsWith("ar");
+        Locale locale = locale();
+        if (locale != null) {
+            String lang = locale.getLanguage();
+            if (lang != null && !lang.isBlank()) {
+                return lang.startsWith("fa") || lang.startsWith("ar");
+            }
         }
         return false;
     }
 
     default UserOptions getOptions() {
-        return new UserOptions(getUsername(), LocaleContextHolder.getLocale(), LocaleContextHolder.getTimeZone().toZoneId(),
-                getCalendarType(), getDateFormat(), getDateTimeFormat(), getTimeFormat(), getDurationType(), getEnumType(), isRtl());
+        return new UserOptions(username(), LocaleContextHolder.getLocale(), LocaleContextHolder.getTimeZone().toZoneId(),
+                calendarType(), dateFormat(), dateTimeFormat(), timeFormat(), durationType(), enumType(), roles(), isRtl());
     }
 
 }

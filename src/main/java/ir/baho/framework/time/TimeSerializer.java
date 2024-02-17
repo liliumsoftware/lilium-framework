@@ -19,7 +19,7 @@ public class TimeSerializer extends JsonSerializer<LocalTime> implements Convert
 
     @Override
     public String convert(LocalTime localTime) {
-        return dateTimes.format(localTime, currentUser.getTimeFormat());
+        return dateTimes.format(localTime, currentUser.timeFormat());
     }
 
     @Override

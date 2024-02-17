@@ -4,7 +4,9 @@ import ir.baho.framework.metadata.report.DateTimeFormatters;
 import ir.baho.framework.service.CurrentUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Locale;
@@ -13,14 +15,20 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 public class Metadata implements SortMetadata, Serializable {
 
+    @Setter
+    @Getter
     private CurrentUser currentUser;
 
+    @Getter
     @Valid
     private Sort[] sort;
 
+    @Getter
     @Valid
     private Search[] search;
 
+    @Setter
+    @Getter
     private boolean and = true;
 
     private transient boolean convert = false;
@@ -33,36 +41,12 @@ public class Metadata implements SortMetadata, Serializable {
         this.search = search;
     }
 
-    public CurrentUser getCurrentUser() {
-        return currentUser;
-    }
-
-    public void setCurrentUser(CurrentUser currentUser) {
-        this.currentUser = currentUser;
-    }
-
-    public Sort[] getSort() {
-        return sort;
-    }
-
     public void setSort(Sort... sort) {
         this.sort = sort;
     }
 
-    public Search[] getSearch() {
-        return search;
-    }
-
     public void setSearch(Search... search) {
         this.search = search;
-    }
-
-    public boolean isAnd() {
-        return and;
-    }
-
-    public void setAnd(boolean and) {
-        this.and = and;
     }
 
     public void converted() {
@@ -74,11 +58,11 @@ public class Metadata implements SortMetadata, Serializable {
     }
 
     public String getUsername() {
-        return currentUser.getUsername();
+        return currentUser.username();
     }
 
     public Locale getLocale() {
-        return currentUser.getLocale();
+        return currentUser.locale();
     }
 
     public boolean isRtl() {
@@ -86,10 +70,10 @@ public class Metadata implements SortMetadata, Serializable {
     }
 
     public DateTimeFormatters getDateTimeFormatters() {
-        return new DateTimeFormatters(currentUser.getLocale(),
-                currentUser.getTimeZone().toZoneId(), currentUser.getCalendarType(),
-                currentUser.getDateFormat(), currentUser.getDateTimeFormat(),
-                currentUser.getTimeFormat(), currentUser.getDurationType());
+        return new DateTimeFormatters(currentUser.locale(),
+                currentUser.zoneId(), currentUser.calendarType(),
+                currentUser.dateFormat(), currentUser.dateTimeFormat(),
+                currentUser.timeFormat(), currentUser.durationType());
     }
 
     @AssertTrue(message = "{ir.baho.framework.search.Constraint}")

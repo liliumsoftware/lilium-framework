@@ -247,7 +247,7 @@ public abstract class BaseController<C extends BaseController<C>> {
     }
 
     protected void subscribe(SseEmitter sseEmitter) {
-        sses.put(currentUser().getUsername(), sseEmitter);
+        sses.put(currentUser().username(), sseEmitter);
         sseEmitter.onCompletion(() -> sses.values().remove(sseEmitter));
         sseEmitter.onError(t -> sses.values().remove(sseEmitter));
         sseEmitter.onTimeout(sseEmitter::complete);
@@ -261,7 +261,7 @@ public abstract class BaseController<C extends BaseController<C>> {
     }
 
     protected SseEmitter send(Object value) {
-        SseEmitter sseEmitter = sses.get(currentUser().getUsername());
+        SseEmitter sseEmitter = sses.get(currentUser().username());
         if (sseEmitter != null) {
             try {
                 sseEmitter.send(value);

@@ -45,7 +45,7 @@ public class DateTimes {
     private final CurrentUser currentUser;
 
     public LocalDate of(int year, int month, int day) {
-        return of(year, month, day, currentUser.getCalendarType());
+        return of(year, month, day, currentUser.calendarType());
     }
 
     public LocalDate of(int year, int month, int day, CalendarType calendarType) {
@@ -68,7 +68,7 @@ public class DateTimes {
     }
 
     public LocalDateTime of(int year, int month, int day, int hour, int minute, int second) {
-        return of(year, month, day, hour, minute, second, currentUser.getCalendarType());
+        return of(year, month, day, hour, minute, second, currentUser.calendarType());
     }
 
     public LocalDateTime of(int year, int month, int day, int hour, int minute, int second, CalendarType calendarType) {
@@ -104,7 +104,7 @@ public class DateTimes {
     }
 
     public LocalDate getStart(int year) {
-        return getStart(year, currentUser.getCalendarType());
+        return getStart(year, currentUser.calendarType());
     }
 
     public LocalDate getStart(int year, CalendarType calendarType) {
@@ -119,7 +119,7 @@ public class DateTimes {
     }
 
     public LocalDate getEnd(int year) {
-        return getEnd(year, currentUser.getCalendarType());
+        return getEnd(year, currentUser.calendarType());
     }
 
     public LocalDate getEnd(int year, CalendarType calendarType) {
@@ -134,7 +134,7 @@ public class DateTimes {
     }
 
     public LocalDate getStart(int year, SixMonth sixMonth) {
-        return getStart(year, sixMonth, currentUser.getCalendarType());
+        return getStart(year, sixMonth, currentUser.calendarType());
     }
 
     public LocalDate getStart(int year, SixMonth sixMonth, CalendarType calendarType) {
@@ -160,7 +160,7 @@ public class DateTimes {
     }
 
     public LocalDate getEnd(int year, SixMonth sixMonth) {
-        return getEnd(year, sixMonth, currentUser.getCalendarType());
+        return getEnd(year, sixMonth, currentUser.calendarType());
     }
 
     public LocalDate getEnd(int year, SixMonth sixMonth, CalendarType calendarType) {
@@ -186,7 +186,7 @@ public class DateTimes {
     }
 
     public LocalDate getStart(int year, Quarter quarter) {
-        return getStart(year, quarter, currentUser.getCalendarType());
+        return getStart(year, quarter, currentUser.calendarType());
     }
 
     public LocalDate getStart(int year, Quarter quarter, CalendarType calendarType) {
@@ -230,7 +230,7 @@ public class DateTimes {
     }
 
     public LocalDate getEnd(int year, Quarter quarter) {
-        return getEnd(year, quarter, currentUser.getCalendarType());
+        return getEnd(year, quarter, currentUser.calendarType());
     }
 
     public LocalDate getEnd(int year, Quarter quarter, CalendarType calendarType) {
@@ -274,7 +274,7 @@ public class DateTimes {
     }
 
     public LocalDate getStart(int year, int month) {
-        return getStart(year, month, currentUser.getCalendarType());
+        return getStart(year, month, currentUser.calendarType());
     }
 
     public LocalDate getStart(int year, int month, CalendarType calendarType) {
@@ -289,7 +289,7 @@ public class DateTimes {
     }
 
     public LocalDate getEnd(int year, int month) {
-        return getEnd(year, month, currentUser.getCalendarType());
+        return getEnd(year, month, currentUser.calendarType());
     }
 
     public LocalDate getEnd(int year, int month, CalendarType calendarType) {
@@ -319,7 +319,7 @@ public class DateTimes {
     }
 
     public List<Week> getWeeksBetween(LocalDate startDate, LocalDate endDate) {
-        return getWeeksBetween(startDate, endDate, currentUser.getCalendarType());
+        return getWeeksBetween(startDate, endDate, currentUser.calendarType());
     }
 
     public List<Week> getWeeksBetween(LocalDate startDate, LocalDate endDate, CalendarType calendarType) {
@@ -376,7 +376,7 @@ public class DateTimes {
     }
 
     public List<Month> getMonthsBetween(LocalDate startDate, LocalDate endDate) {
-        return getMonthsBetween(startDate, endDate, currentUser.getCalendarType());
+        return getMonthsBetween(startDate, endDate, currentUser.calendarType());
     }
 
     public List<Month> getMonthsBetween(LocalDate startDate, LocalDate endDate, CalendarType calendarType) {
@@ -432,7 +432,7 @@ public class DateTimes {
     }
 
     public List<Year> getYearsBetween(LocalDate startDate, LocalDate endDate) {
-        return getYearsBetween(startDate, endDate, currentUser.getCalendarType());
+        return getYearsBetween(startDate, endDate, currentUser.calendarType());
     }
 
     public List<Year> getYearsBetween(LocalDate startDate, LocalDate endDate, CalendarType calendarType) {
@@ -486,7 +486,7 @@ public class DateTimes {
     }
 
     public int getYear(LocalDate date) {
-        return getYear(date, currentUser.getCalendarType());
+        return getYear(date, currentUser.calendarType());
     }
 
     public int getYear(LocalDate date, CalendarType calendarType) {
@@ -499,7 +499,7 @@ public class DateTimes {
     }
 
     public int getMonth(LocalDate date) {
-        return getMonth(date, currentUser.getCalendarType());
+        return getMonth(date, currentUser.calendarType());
     }
 
     public int getMonth(LocalDate date, CalendarType calendarType) {
@@ -512,7 +512,7 @@ public class DateTimes {
     }
 
     public int getDay(LocalDate date) {
-        return getDay(date, currentUser.getCalendarType());
+        return getDay(date, currentUser.calendarType());
     }
 
     public int getDay(LocalDate date, CalendarType calendarType) {
@@ -525,7 +525,7 @@ public class DateTimes {
     }
 
     public SixMonth getSixMonth(LocalDate date) {
-        return getSixMonth(date, currentUser.getCalendarType());
+        return getSixMonth(date, currentUser.calendarType());
     }
 
     public SixMonth getSixMonth(LocalDate date, CalendarType calendarType) {
@@ -533,7 +533,7 @@ public class DateTimes {
     }
 
     public Quarter getQuarter(LocalDate date) {
-        return getQuarter(date, currentUser.getCalendarType());
+        return getQuarter(date, currentUser.calendarType());
     }
 
     public Quarter getQuarter(LocalDate date, CalendarType calendarType) {
@@ -546,7 +546,7 @@ public class DateTimes {
     }
 
     public int getLastDayOfMonth(int year, int month) {
-        return getLastDayOfMonth(year, month, currentUser.getCalendarType());
+        return getLastDayOfMonth(year, month, currentUser.calendarType());
     }
 
     public int getLastDayOfMonth(int year, int month, CalendarType calendarType) {
@@ -566,7 +566,7 @@ public class DateTimes {
     }
 
     public boolean isLeapYear(int year) {
-        return isLeapYear(year, currentUser.getCalendarType());
+        return isLeapYear(year, currentUser.calendarType());
     }
 
     public boolean isLeapYear(int year, CalendarType calendarType) {
@@ -580,7 +580,7 @@ public class DateTimes {
     }
 
     public LocalDate parseDate(String date, String pattern) {
-        return parseDate(date, pattern, currentUser.getCalendarType());
+        return parseDate(date, pattern, currentUser.calendarType());
     }
 
     @SneakyThrows
@@ -591,7 +591,7 @@ public class DateTimes {
     }
 
     public LocalDateTime parseDateTime(String date, String pattern) {
-        return parseDateTime(date, pattern, currentUser.getCalendarType());
+        return parseDateTime(date, pattern, currentUser.calendarType());
     }
 
     @SneakyThrows
@@ -630,7 +630,7 @@ public class DateTimes {
     }
 
     public String format(LocalDate localDate, String pattern) {
-        return format(localDate, pattern, currentUser.getCalendarType());
+        return format(localDate, pattern, currentUser.calendarType());
     }
 
     public String format(LocalDate localDate, String pattern, CalendarType calendarType) {
@@ -640,7 +640,7 @@ public class DateTimes {
     }
 
     public String format(LocalDateTime localDateTime, String pattern) {
-        return format(localDateTime, pattern, currentUser.getCalendarType());
+        return format(localDateTime, pattern, currentUser.calendarType());
     }
 
     public String format(LocalDateTime localDateTime, String pattern, CalendarType calendarType) {
@@ -679,7 +679,7 @@ public class DateTimes {
     }
 
     public DateFormat getDateFormat(String pattern) {
-        return getDateFormat(pattern, currentUser.getCalendarType());
+        return getDateFormat(pattern, currentUser.calendarType());
     }
 
     public DateFormat getDateFormat(String pattern, CalendarType calendarType) {

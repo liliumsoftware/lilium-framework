@@ -21,12 +21,12 @@ public class TimeConverter extends StringConverter<LocalTime> {
 
     @Override
     public LocalTime convert(String source) {
-        return dateTimes.parseTime(source, currentUser.getTimeFormat());
+        return dateTimes.parseTime(source, currentUser.timeFormat());
     }
 
     @Override
     public String print(LocalTime value, Locale locale) {
-        return Strings.getText(dateTimes.format(value, currentUser.getTimeFormat()), locale);
+        return Strings.getText(dateTimes.format(value, currentUser.timeFormat()), locale);
     }
 
 }

@@ -19,7 +19,7 @@ public class DateSerializer extends JsonSerializer<LocalDate> implements Convert
 
     @Override
     public String convert(LocalDate date) {
-        return dateTimes.format(date, currentUser.getDateFormat());
+        return dateTimes.format(date, currentUser.dateFormat());
     }
 
     @Override

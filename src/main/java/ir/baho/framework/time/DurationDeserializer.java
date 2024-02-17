@@ -19,7 +19,7 @@ public class DurationDeserializer extends JsonDeserializer<Duration> implements 
 
     @Override
     public Duration convert(String source) {
-        return dateTimes.parseDuration(source, currentUser.getDurationType());
+        return dateTimes.parseDuration(source, currentUser.durationType());
     }
 
     @Override

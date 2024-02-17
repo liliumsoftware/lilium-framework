@@ -7,8 +7,9 @@ import ir.baho.framework.time.CalendarType;
 import ir.baho.framework.time.DurationType;
 import lombok.RequiredArgsConstructor;
 
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 @RequiredArgsConstructor
 public class OptionsCurrentUser implements CurrentUser {
@@ -16,48 +17,53 @@ public class OptionsCurrentUser implements CurrentUser {
     private final UserOptions options;
 
     @Override
-    public Locale getLocale() {
+    public Locale locale() {
         return options.getLocale();
     }
 
     @Override
-    public TimeZone getTimeZone() {
-        return TimeZone.getTimeZone(options.getZoneId());
+    public ZoneId zoneId() {
+        return options.getZoneId();
     }
 
     @Override
-    public String getUsername() {
+    public String username() {
         return options.getUsername();
     }
 
     @Override
-    public CalendarType getCalendarType() {
+    public CalendarType calendarType() {
         return options.getCalendarType();
     }
 
     @Override
-    public String getDateFormat() {
+    public String dateFormat() {
         return options.getDateFormat();
     }
 
     @Override
-    public String getDateTimeFormat() {
+    public String dateTimeFormat() {
         return options.getDateTimeFormat();
     }
 
     @Override
-    public String getTimeFormat() {
+    public String timeFormat() {
         return options.getTimeFormat();
     }
 
     @Override
-    public DurationType getDurationType() {
+    public DurationType durationType() {
         return options.getDurationType();
     }
 
     @Override
-    public EnumType getEnumType() {
+    public EnumType enumType() {
         return options.getEnumType();
+    }
+
+    @Override
+    public List<String> roles() {
+        return options.getRoles();
     }
 
 }

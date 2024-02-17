@@ -19,7 +19,7 @@ public class DurationSerializer extends JsonSerializer<Duration> implements Conv
 
     @Override
     public String convert(Duration duration) {
-        return dateTimes.format(duration, currentUser.getDurationType());
+        return dateTimes.format(duration, currentUser.durationType());
     }
 
     @Override

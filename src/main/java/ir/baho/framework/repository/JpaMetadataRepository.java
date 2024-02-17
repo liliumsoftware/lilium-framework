@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @NoRepositoryBean
@@ -16,12 +17,21 @@ public interface JpaMetadataRepository<E extends BaseEntitySimple<?, ID>, ID ext
         return findById(id).orElseThrow(NotFoundException::new);
     }
 
-    Optional<EntityMetadata<ID>> findMetadataById(ID id);
+    Optional<EntityMetadataProjection<ID>> findMetadataProjectedById(ID id);
 
     default EntityMetadata<ID> findMetadata(ID id) {
-        return findMetadataById(id).orElseThrow(NotFoundException::new);
+        EntityMetadataProjection<ID> entityMetadata = findMetadataProjectedById(id).orElseThrow(NotFoundException::new);
+        return new EntityMetadata<>(entityMetadata.getId(), entityMetadata.getLastModifiedDate(), entityMetadata.getVersion());
     }
 
     boolean existsBy();
+
+    interface EntityMetadataProjection<ID extends Serializable & Comparable<ID>> {
+        ID getId();
+
+        LocalDateTime getLastModifiedDate();
+
+        int getVersion();
+    }
 
 }

@@ -14,7 +14,7 @@ public class UserRevisionListener implements RevisionListener {
     @Override
     public void newRevision(Object revisionEntity) {
         BaseRevisionEntity<?, ?> revisionInformation = (BaseRevisionEntity<?, ?>) revisionEntity;
-        revisionInformation.setUsername(currentUser.getUsername());
+        revisionInformation.setUsername(currentUser.username());
     }
 
 }

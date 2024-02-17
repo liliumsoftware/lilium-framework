@@ -147,7 +147,7 @@ public class JacksonConfig {
                     return new JsonDeserializer<>() {
                         @Override
                         public Object deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-                            return EnumConverter.getEnum(messageResource, currentUser.getEnumType(), (Class<Enum>) beanDesc.getBeanClass(), parser.getText());
+                            return EnumConverter.getEnum(messageResource, currentUser.enumType(), (Class<Enum>) beanDesc.getBeanClass(), parser.getText());
                         }
                     };
                 }
