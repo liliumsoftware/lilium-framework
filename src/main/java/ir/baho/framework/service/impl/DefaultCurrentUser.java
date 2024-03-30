@@ -30,7 +30,9 @@ public class DefaultCurrentUser implements CurrentUser {
 
     @Override
     public String username() {
-        return Optional.ofNullable(getTokenValue("preferred_username")).orElse("anonymousUser");
+        return Optional.ofNullable(getTokenValue("preferred_username"))
+                .or(() -> Optional.ofNullable(getTokenValue("email")))
+                .orElse("anonymousUser");
     }
 
     @Override
@@ -108,6 +110,12 @@ public class DefaultCurrentUser implements CurrentUser {
         return Optional.ofNullable(value).map(m -> m.get("realm_access")).map(m -> m.get("roles")).orElse(List.of());
     }
 
+    @Override
+    public List<String> groups() {
+        Map<String, List<String>> value = getToken();
+        return Optional.ofNullable(value).map(v -> v.get("groups")).orElse(List.of());
+    }
+
     private String getHeaderValue(String name) {
         HttpServletRequest request = getRequest();
         if (request != null) {
@@ -118,7 +126,7 @@ public class DefaultCurrentUser implements CurrentUser {
 
     private String getTokenValue(String name) {
         Map<String, String> value = getToken();
-        return Optional.ofNullable(value).map(m -> m.get(name)).orElse(null);
+        return Optional.ofNullable(value).map(v -> v.get(name)).orElse(null);
     }
 
     @SuppressWarnings("unchecked")

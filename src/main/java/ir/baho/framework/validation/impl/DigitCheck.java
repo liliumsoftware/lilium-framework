@@ -33,8 +33,8 @@ public class DigitCheck implements ConstraintValidator<Digit, Object> {
             str = str.substring(0, str.length() - 2);
         }
         if (str.matches("([-]?[0-9]{" + minIntegerLen + "," + maxIntegerLen
-                + "})|([-]?[0-9]{" + minIntegerLen + "," + maxIntegerLen
-                + "}\\.[0-9]{" + minDecimalLen + "," + maxDecimalLen + "})")) {
+                        + "})|([-]?[0-9]{" + minIntegerLen + "," + maxIntegerLen
+                        + "}\\.[0-9]{" + minDecimalLen + "," + maxDecimalLen + "})")) {
             if (value instanceof Number) {
                 double number = ((Number) value).doubleValue();
                 return number >= min && number <= max;

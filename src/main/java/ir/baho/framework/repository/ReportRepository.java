@@ -56,6 +56,7 @@ import net.sf.dynamicreports.report.constant.GroupHeaderLayout;
 import net.sf.dynamicreports.report.constant.Orientation;
 import net.sf.dynamicreports.report.constant.PageOrientation;
 import net.sf.dynamicreports.report.constant.WhenNoDataType;
+import net.sf.dynamicreports.report.constant.WhenResourceMissingType;
 import net.sf.jasperreports.engine.JRPrintElement;
 import net.sf.jasperreports.engine.JRPrintFrame;
 import net.sf.jasperreports.engine.JRPrintPage;
@@ -257,7 +258,8 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                                           Map<String, Class<?>> fields, Class<?> domainClass, boolean names) {
         JasperReportBuilder builder = DynamicReports.report()
                 .setSummaryWithPageHeaderAndFooter(true)
-                .setWhenNoDataType(WhenNoDataType.BLANK_PAGE);
+                .setWhenNoDataType(WhenNoDataType.BLANK_PAGE)
+                .setWhenResourceMissingType(WhenResourceMissingType.EMPTY);
         boolean rtl = metadata.isRtl();
 
         if (design.getTitle() != null) {
@@ -388,8 +390,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
             }
             builder.addPageFooter(pageNumber);
         }
-        builder.setPageFormat(design.getWidth(), design.getHeight(),
-                design.getWidth() > design.getHeight() ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT);
+        builder.setPageFormat(design.getWidth(), design.getHeight(), PageOrientation.PORTRAIT);
         builder.setPageMargin(DynamicReports.margin()
                 .setTop(design.getMarginTop()).setLeft(design.getMarginLeft())
                 .setRight(design.getMarginRight()).setBottom(design.getMarginBottom()));
@@ -535,7 +536,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                             case MIN -> DynamicReports.sbt.min(numberColumn);
                             case MAX -> DynamicReports.sbt.max(numberColumn);
                             case AVG -> DynamicReports.sbt.avg(numberColumn);
-                            default -> DynamicReports.sbt.sum(numberColumn);
+                            case SUM -> DynamicReports.sbt.sum(numberColumn);
                         };
                         subtotalBuilder.setLabel(subtotal.getLabel());
                         if (subtotal.getStyle() != null) {
@@ -610,9 +611,9 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
     private List<AbstractBaseChartBuilder<?, ?, ?>> getCharts(Map<String, ValueColumnBuilder<?, ?>> columns, List<Chart> charts) {
         List<AbstractBaseChartBuilder<?, ?, ?>> chartBuilders = new ArrayList<>();
         for (Chart chart : charts) {
-            AbstractBaseChartBuilder<?, ?, ?> chartBuilder = null;
-            if (chart instanceof AreaChart areaChart) {
-                chartBuilder = areaChart.isStacked() ? DynamicReports.cht.stackedAreaChart()
+            AbstractBaseChartBuilder<?, ?, ?> chartBuilder;
+            switch (chart) {
+                case AreaChart areaChart -> chartBuilder = areaChart.isStacked() ? DynamicReports.cht.stackedAreaChart()
                         .setCategory(getCategory(columns, chart.getCategory()))
                         .series(getSeries(columns, areaChart.getSeries()))
                         .setCategoryAxisFormat(getCategoryAxisFormat(areaChart.getLabel(), areaChart.getLabelFormat()))
@@ -620,35 +621,34 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                         .setCategory(getCategory(columns, chart.getCategory()))
                         .series(getSeries(columns, areaChart.getSeries()))
                         .setCategoryAxisFormat(getCategoryAxisFormat(areaChart.getLabel(), areaChart.getLabelFormat()));
-            } else if (chart instanceof BarChart barChart) {
-                if (barChart.isThreeDimension() && barChart.isStacked()) {
-                    chartBuilder = DynamicReports.cht.stackedBar3DChart()
-                            .setCategory(getCategory(columns, chart.getCategory()))
-                            .series(getSeries(columns, barChart.getSeries()))
-                            .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
-                } else if (barChart.isThreeDimension()) {
-                    chartBuilder = DynamicReports.cht.bar3DChart()
-                            .setCategory(getCategory(columns, chart.getCategory()))
-                            .series(getSeries(columns, barChart.getSeries()))
-                            .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
-                } else if (barChart.isStacked()) {
-                    chartBuilder = DynamicReports.cht.stackedBarChart()
-                            .setCategory(getCategory(columns, chart.getCategory()))
-                            .series(getSeries(columns, barChart.getSeries()))
-                            .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
-                } else {
-                    chartBuilder = DynamicReports.cht.barChart()
-                            .setCategory(getCategory(columns, chart.getCategory()))
-                            .series(getSeries(columns, barChart.getSeries()))
-                            .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
+                case BarChart barChart -> {
+                    if (barChart.isThreeDimension() && barChart.isStacked()) {
+                        chartBuilder = DynamicReports.cht.stackedBar3DChart()
+                                .setCategory(getCategory(columns, chart.getCategory()))
+                                .series(getSeries(columns, barChart.getSeries()))
+                                .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
+                    } else if (barChart.isThreeDimension()) {
+                        chartBuilder = DynamicReports.cht.bar3DChart()
+                                .setCategory(getCategory(columns, chart.getCategory()))
+                                .series(getSeries(columns, barChart.getSeries()))
+                                .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
+                    } else if (barChart.isStacked()) {
+                        chartBuilder = DynamicReports.cht.stackedBarChart()
+                                .setCategory(getCategory(columns, chart.getCategory()))
+                                .series(getSeries(columns, barChart.getSeries()))
+                                .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
+                    } else {
+                        chartBuilder = DynamicReports.cht.barChart()
+                                .setCategory(getCategory(columns, chart.getCategory()))
+                                .series(getSeries(columns, barChart.getSeries()))
+                                .setCategoryAxisFormat(getCategoryAxisFormat(barChart.getLabel(), barChart.getLabelFormat()));
+                    }
                 }
-            } else if (chart instanceof LineChart lineChart) {
-                chartBuilder = DynamicReports.cht.lineChart()
+                case LineChart lineChart -> chartBuilder = DynamicReports.cht.lineChart()
                         .setCategory(getCategory(columns, chart.getCategory()))
                         .series(getSeries(columns, lineChart.getSeries()))
                         .setCategoryAxisFormat(getCategoryAxisFormat(lineChart.getLabel(), lineChart.getLabelFormat()));
-            } else if (chart instanceof PieChart pieChart) {
-                chartBuilder = pieChart.isThreeDimension() ? DynamicReports.cht.pie3DChart()
+                case PieChart pieChart -> chartBuilder = pieChart.isThreeDimension() ? DynamicReports.cht.pie3DChart()
                         .series(getSeries(columns, pieChart.getSeries()))
                         .setKey(getCategory(columns, chart.getCategory()))
                         : DynamicReports.cht.pieChart()

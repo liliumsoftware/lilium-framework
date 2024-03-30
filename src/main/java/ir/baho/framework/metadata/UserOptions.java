@@ -37,6 +37,8 @@ public class UserOptions implements Serializable {
 
     private List<String> roles;
 
+    private List<String> groups;
+
     private boolean rtl;
 
 }

@@ -147,12 +147,12 @@ public abstract class ReturnedType {
 
         private boolean isDto() {
             return !Object.class.equals(type) &&
-                    !type.isEnum() &&
-                    !isDomainSubtype() &&
-                    !isPrimitiveOrWrapper() &&
-                    !Number.class.isAssignableFrom(type) &&
-                    !VOID_TYPES.contains(type) &&
-                    !type.getPackage().getName().startsWith("java.");
+                   !type.isEnum() &&
+                   !isDomainSubtype() &&
+                   !isPrimitiveOrWrapper() &&
+                   !Number.class.isAssignableFrom(type) &&
+                   !VOID_TYPES.contains(type) &&
+                   !type.getPackage().getName().startsWith("java.");
         }
 
         private boolean isDomainSubtype() {
@@ -224,7 +224,7 @@ public abstract class ReturnedType {
         @Override
         public String toString() {
             return "ReturnedType.CacheKey(returnedType=" + this.getReturnedType() + ", domainType=" + this.getDomainType()
-                    + ", projectionFactoryHashCode=" + this.getProjectionFactoryHashCode() + ")";
+                   + ", projectionFactoryHashCode=" + this.getProjectionFactoryHashCode() + ")";
         }
 
     }

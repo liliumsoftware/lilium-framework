@@ -66,4 +66,9 @@ public class OptionsCurrentUser implements CurrentUser {
         return options.getRoles();
     }
 
+    @Override
+    public List<String> groups() {
+        return options.getGroups();
+    }
+
 }

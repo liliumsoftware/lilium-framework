@@ -519,11 +519,11 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
             List<Predicate> wherePredicates = new ArrayList<>();
             List<Predicate> havingPredicates = new ArrayList<>();
             if (predicates != null) {
-                if (predicates.getWherePredicate() != null) {
-                    wherePredicates.add(predicates.getWherePredicate());
+                if (predicates.wherePredicate() != null) {
+                    wherePredicates.add(predicates.wherePredicate());
                 }
-                if (predicates.getHavingPredicate() != null) {
-                    havingPredicates.add(predicates.getHavingPredicate());
+                if (predicates.havingPredicate() != null) {
+                    havingPredicates.add(predicates.havingPredicate());
                 }
             }
             if (metadata.getSearch() != null) {

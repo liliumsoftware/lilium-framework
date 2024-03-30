@@ -38,6 +38,8 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
 
     List<String> roles();
 
+    List<String> groups();
+
     @Override
     default Locale getLocale() {
         return locale();
@@ -62,7 +64,7 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
 
     default UserOptions getOptions() {
         return new UserOptions(username(), LocaleContextHolder.getLocale(), LocaleContextHolder.getTimeZone().toZoneId(),
-                calendarType(), dateFormat(), dateTimeFormat(), timeFormat(), durationType(), enumType(), roles(), isRtl());
+                calendarType(), dateFormat(), dateTimeFormat(), timeFormat(), durationType(), enumType(), roles(), groups(), isRtl());
     }
 
 }

@@ -74,14 +74,14 @@ public final class Validator {
             }
         }
         if (postalCode.equals("0000000000") || postalCode.equals("1111111111")
-                || postalCode.equals("2222222222") || postalCode.equals("3333333333")
-                || postalCode.equals("4444444444") || postalCode.equals("5555555555")
-                || postalCode.equals("6666666666") || postalCode.equals("7777777777")
-                || postalCode.equals("8888888888") || postalCode.equals("9999999999")) {
+            || postalCode.equals("2222222222") || postalCode.equals("3333333333")
+            || postalCode.equals("4444444444") || postalCode.equals("5555555555")
+            || postalCode.equals("6666666666") || postalCode.equals("7777777777")
+            || postalCode.equals("8888888888") || postalCode.equals("9999999999")) {
             return false;
         }
         return !postalCode.contains("0") && !postalCode.contains("2") &&
-                Character.getNumericValue(postalCode.charAt(4)) != 5 && isUnique(postalCode.substring(0, 4));
+               Character.getNumericValue(postalCode.charAt(4)) != 5 && isUnique(postalCode.substring(0, 4));
     }
 
     public static boolean isImei(String imei) {
@@ -124,10 +124,10 @@ public final class Validator {
             }
         }
         if (nationalId.equals("0000000000") || nationalId.equals("1111111111")
-                || nationalId.equals("2222222222") || nationalId.equals("3333333333")
-                || nationalId.equals("4444444444") || nationalId.equals("5555555555")
-                || nationalId.equals("6666666666") || nationalId.equals("7777777777")
-                || nationalId.equals("8888888888") || nationalId.equals("9999999999")) {
+            || nationalId.equals("2222222222") || nationalId.equals("3333333333")
+            || nationalId.equals("4444444444") || nationalId.equals("5555555555")
+            || nationalId.equals("6666666666") || nationalId.equals("7777777777")
+            || nationalId.equals("8888888888") || nationalId.equals("9999999999")) {
             return false;
         }
         int sum = IntStream.range(0, nationalId.length() - 1).map(i -> (Byte.parseByte(String.valueOf(nationalId.charAt(i))) * (10 - i))).sum();
@@ -147,10 +147,10 @@ public final class Validator {
             }
         }
         if (companyId.equals("00000000000") || companyId.equals("11111111111")
-                || companyId.equals("22222222222") || companyId.equals("33333333333")
-                || companyId.equals("44444444444") || companyId.equals("55555555555")
-                || companyId.equals("66666666666") || companyId.equals("77777777777")
-                || companyId.equals("88888888888") || companyId.equals("99999999999")) {
+            || companyId.equals("22222222222") || companyId.equals("33333333333")
+            || companyId.equals("44444444444") || companyId.equals("55555555555")
+            || companyId.equals("66666666666") || companyId.equals("77777777777")
+            || companyId.equals("88888888888") || companyId.equals("99999999999")) {
             return false;
         }
         char[] chars = companyId.toCharArray();
