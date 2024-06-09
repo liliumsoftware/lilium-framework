@@ -621,10 +621,10 @@ public class DateTimes {
             case MINUTE -> Duration.ofMinutes((Integer.parseInt(parts[0])));
             case SECOND -> Duration.ofSeconds((Integer.parseInt(parts[0])));
             case HOUR_MINUTE -> Duration.ofSeconds((Integer.parseInt(parts[0]) * 3600L)
-                                                   + (Integer.parseInt(parts[1]) * 60L));
+                    + (Integer.parseInt(parts[1]) * 60L));
             case MINUTE_SECOND -> Duration.ofSeconds((Integer.parseInt(parts[0]) * 60L) + (Integer.parseInt(parts[1])));
             default -> Duration.ofSeconds((Integer.parseInt(parts[0]) * 3600L)
-                                          + (Integer.parseInt(parts[1]) * 60L) + (Integer.parseInt(parts[2])));
+                    + (Integer.parseInt(parts[1]) * 60L) + (Integer.parseInt(parts[2])));
         };
         return negative ? d.negated() : d;
     }

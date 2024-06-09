@@ -52,8 +52,7 @@ public class JasperXlsxSheetHelper extends XlsxSheetHelper {
 
         if (rowFreezeIndex > 0 || columnFreezeIndex > 0) {
             write(">\n<pane" + (columnFreezeIndex > 0 ? (" xSplit=\"" + columnFreezeIndex + "\"") : "") + (rowFreezeIndex > 0 ? (" ySplit=\"" + rowFreezeIndex + "\"") : ""));
-            String columnFreezeName = columnFreezeIndex < 0 ? "A"
-                    : JRXlsAbstractExporter.getColumIndexName(columnFreezeIndex, maxColumnFreezeIndex);
+            String columnFreezeName = columnFreezeIndex < 0 ? "A" : JRXlsAbstractExporter.getColumIndexName(columnFreezeIndex, maxColumnFreezeIndex);
             write(" topLeftCell=\"" + columnFreezeName + (rowFreezeIndex + 1) + "\"");
             String activePane = (rowFreezeIndex > 0 ? "bottom" : "top") + (columnFreezeIndex > 0 ? "Right" : "Left");
             write(" activePane=\"" + activePane + "\" state=\"frozen\"/>\n");

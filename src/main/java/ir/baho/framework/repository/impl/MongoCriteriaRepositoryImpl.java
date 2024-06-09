@@ -442,9 +442,9 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
 
     protected String getQueryString(Query query) {
         String queryString = "{\n"
-                             + "  'collectionName' : '" + mongoOperations.getCollectionName(entityInformation.getJavaType()) + "' ,\n"
-                             + "  'findQuery' : " + SerializationUtils.serializeToJsonSafely(query.getQueryObject()) + " ,\n"
-                             + "  'findFields' : " + SerializationUtils.serializeToJsonSafely(query.getFieldsObject());
+                + "  'collectionName' : '" + mongoOperations.getCollectionName(entityInformation.getJavaType()) + "' ,\n"
+                + "  'findQuery' : " + SerializationUtils.serializeToJsonSafely(query.getQueryObject()) + " ,\n"
+                + "  'findFields' : " + SerializationUtils.serializeToJsonSafely(query.getFieldsObject());
         if (query.isSorted()) {
             queryString += " ,\n  'sort' : " + SerializationUtils.serializeToJsonSafely(query.getSortObject());
         }
@@ -454,9 +454,9 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
 
     protected String getQueryString(Aggregation aggregation) {
         return "{\n"
-               + "  'collectionName' : '" + mongoOperations.getCollectionName(entityInformation.getJavaType()) + "' ,\n"
-               + "  'aggregate' : " + SerializationUtils.serializeToJsonSafely(aggregation.toDocument(entityInformation.getCollectionName(), Aggregation.DEFAULT_CONTEXT).get("pipeline")) + "\n"
-               + "}";
+                + "  'collectionName' : '" + mongoOperations.getCollectionName(entityInformation.getJavaType()) + "' ,\n"
+                + "  'aggregate' : " + SerializationUtils.serializeToJsonSafely(aggregation.toDocument(entityInformation.getCollectionName(), Aggregation.DEFAULT_CONTEXT).get("pipeline")) + "\n"
+                + "}";
     }
 
 }

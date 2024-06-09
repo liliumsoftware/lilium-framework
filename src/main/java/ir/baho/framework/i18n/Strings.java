@@ -24,6 +24,9 @@ public class Strings {
         if (value > 999999999999L) {
             throw new NumberFormatException("Value is too large");
         }
+        if (value < -999999999999L) {
+            throw new NumberFormatException("Value is too small");
+        }
         NumberFormat formatter = new RuleBasedNumberFormat(locale, RuleBasedNumberFormat.SPELLOUT);
         return formatter.format(value);
     }

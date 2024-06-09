@@ -13,7 +13,6 @@ import net.sf.jasperreports.engine.JRPrintLine;
 import net.sf.jasperreports.engine.JRPrintPage;
 import net.sf.jasperreports.engine.JRPrintRectangle;
 import net.sf.jasperreports.engine.JRPrintText;
-import net.sf.jasperreports.engine.PrintPageFormat;
 import net.sf.jasperreports.engine.export.CutsInfo;
 import net.sf.jasperreports.engine.export.ElementGridCell;
 import net.sf.jasperreports.engine.export.Grid;
@@ -21,6 +20,7 @@ import net.sf.jasperreports.engine.export.GridRow;
 import net.sf.jasperreports.engine.export.JRExporterGridCell;
 import net.sf.jasperreports.engine.export.JRGridLayout;
 import net.sf.jasperreports.engine.export.OccupiedGridCell;
+import net.sf.jasperreports.engine.export.ooxml.DocxContentTypesHelper;
 import net.sf.jasperreports.engine.export.ooxml.DocxDocumentHelper;
 import net.sf.jasperreports.engine.export.ooxml.DocxFontHelper;
 import net.sf.jasperreports.engine.export.ooxml.DocxFontTableHelper;
@@ -35,7 +35,6 @@ import net.sf.jasperreports.engine.export.ooxml.OoxmlEncryptUtil;
 import net.sf.jasperreports.engine.export.ooxml.PropsAppHelper;
 import net.sf.jasperreports.engine.export.ooxml.PropsCoreHelper;
 import net.sf.jasperreports.export.DocxExporterConfiguration;
-import net.sf.jasperreports.export.ExportInterruptedException;
 import net.sf.jasperreports.export.ExporterInputItem;
 
 import java.io.IOException;
@@ -56,10 +55,13 @@ public class JasperDocxExporter extends JRDocxExporter {
         docWriter = docxZip.getDocumentEntry().getWriter();
 
         docHelper = new DocxDocumentHelper(jasperReportsContext, docWriter);
-        docHelper.exportHeader();
+        docHelper.exportHeader(pageFormat);
 
         relsHelper = new DocxRelsHelper(jasperReportsContext, docxZip.getRelsEntry().getWriter());
         relsHelper.exportHeader();
+
+        ctHelper = new DocxContentTypesHelper(jasperReportsContext, docxZip.getContentTypesEntry().getWriter());
+        ctHelper.exportHeader();
 
         appHelper = new PropsAppHelper(jasperReportsContext, docxZip.getAppEntry().getWriter());
         coreHelper = new PropsCoreHelper(jasperReportsContext, docxZip.getCoreEntry().getWriter());
@@ -70,7 +72,9 @@ public class JasperDocxExporter extends JRDocxExporter {
 
         String application = configuration.getMetadataApplication();
         if (application == null) {
-            application = "JasperReports Library version " + ClassLoader.getSystemClassLoader().getDefinedPackage("net.sf.jasperreports.engine").getImplementationVersion();
+            @SuppressWarnings("deprecation") //this can be replaced only after abandoning Java 8 support
+            String depApplication = "JasperReports Library version " + Package.getPackage("net.sf.jasperreports.engine").getImplementationVersion();
+            application = depApplication;
         }
         appHelper.exportProperty(PropsAppHelper.PROPERTY_APPLICATION, application);
 
@@ -113,13 +117,12 @@ public class JasperDocxExporter extends JRDocxExporter {
         docxFontTableRelsHelper = new DocxFontTableRelsHelper(jasperReportsContext, docxZip.getFontTableRelsEntry().getWriter());
         docxFontTableRelsHelper.exportHeader();
 
-
         runHelper = new JasperDocxRunHelper(jasperReportsContext, docWriter, docxFontHelper, rtl);
 
         pageFormat = null;
-        PrintPageFormat oldPageFormat = null;
 
-        for (reportIndex = 0; reportIndex < items.size(); reportIndex++) {
+        for (reportIndex = 0; reportIndex < items.size(); reportIndex++) // remember this uses PrintPartUnrollExporterInput
+        {
             ExporterInputItem item = items.get(reportIndex);
 
             setCurrentExporterInputItem(item);
@@ -133,29 +136,24 @@ public class JasperDocxExporter extends JRDocxExporter {
                 startPageIndex = (pageRange == null || pageRange.getStartPageIndex() == null) ? 0 : pageRange.getStartPageIndex();
                 endPageIndex = (pageRange == null || pageRange.getEndPageIndex() == null) ? (pages.size() - 1) : pageRange.getEndPageIndex();
 
-                JRPrintPage page;
-                for (pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
-                    if (Thread.interrupted()) {
-                        throw new ExportInterruptedException();
+                if (startPageIndex <= endPageIndex) {
+                    pageFormat = jasperPrint.getPageFormat(startPageIndex);
+
+                    exportHeader(pages.get(startPageIndex));
+
+                    JRPrintPage page;
+                    for (pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
+                        checkInterrupted();
+
+                        page = pages.get(pageIndex);
+
+
+                        exportPage(page);
                     }
 
-                    page = pages.get(pageIndex);
-
-                    pageFormat = jasperPrint.getPageFormat(pageIndex);
-
-                    if (oldPageFormat != null && oldPageFormat != pageFormat) {
-                        docHelper.exportSection(oldPageFormat, pageGridLayout, false);
-                    }
-
-                    exportPage(page);
-
-                    oldPageFormat = pageFormat;
+                    docHelper.exportSection(pageFormat, pageGridLayout, headerIndex, reportIndex == items.size() - 1);
                 }
             }
-        }
-
-        if (oldPageFormat != null) {
-            docHelper.exportSection(oldPageFormat, pageGridLayout, true);
         }
 
         docHelper.exportFooter();
@@ -163,6 +161,9 @@ public class JasperDocxExporter extends JRDocxExporter {
 
         relsHelper.exportFooter();
         relsHelper.close();
+
+        ctHelper.exportFooter();
+        ctHelper.close();
 
         appHelper.exportFooter();
         appHelper.close();
@@ -190,7 +191,6 @@ public class JasperDocxExporter extends JRDocxExporter {
 
     @Override
     protected void exportGrid(JRGridLayout gridLayout, JRPrintElementIndex frameIndex) throws JRException {
-
         CutsInfo xCuts = gridLayout.getXCuts();
         Grid grid = gridLayout.getGrid();
         DocxTableHelper tableHelper;
@@ -204,9 +204,8 @@ public class JasperDocxExporter extends JRDocxExporter {
             tableHelper = new JasperDocxTableHelper(jasperReportsContext, docWriter, xCuts, false, pageFormat, frameIndex);
             int maxReportIndex = exporterInput.getItems().size() - 1;
 
-            boolean twice =
-                    (pageIndex > startPageIndex && pageIndex < endPageIndex && !emptyPageState)
-                            || (reportIndex < maxReportIndex && pageIndex == endPageIndex);
+            boolean twice = (pageIndex > startPageIndex && pageIndex < endPageIndex && !emptyPageState)
+                    || (reportIndex < maxReportIndex && pageIndex == endPageIndex);
             tableHelper.getParagraphHelper().exportEmptyPage(pageAnchor, bookmarkIndex, twice);
             bookmarkIndex++;
             emptyPageState = true;

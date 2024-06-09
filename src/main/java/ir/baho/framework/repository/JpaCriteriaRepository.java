@@ -38,16 +38,16 @@ public interface JpaCriteriaRepository<E extends Entity<?, ID>, ID extends Seria
         }
         List<String> fields = Stream.of(attributes).map(a -> getExpressionName(path) + SEPARATOR + a.getName()).toList();
         if (metadata instanceof ProjectionMetadata projectionMetadata && projectionMetadata.getField() != null &&
-            fields.stream().anyMatch(f -> Stream.of(projectionMetadata.getField()).anyMatch(s -> s.equals(f) || s.startsWith(f + SEPARATOR)))) {
+                fields.stream().anyMatch(f -> Stream.of(projectionMetadata.getField()).anyMatch(s -> s.equals(f) || s.startsWith(f + SEPARATOR)))) {
             return true;
         }
         if (metadata.getSearch() == null && metadata.getSort() == null) {
             return false;
         }
         boolean containsSearch = metadata.getSearch() != null &&
-                                 fields.stream().anyMatch(f -> Stream.of(metadata.getSearch()).anyMatch(s -> s.getField().equals(f) || s.getField().startsWith(f + SEPARATOR)));
+                fields.stream().anyMatch(f -> Stream.of(metadata.getSearch()).anyMatch(s -> s.getField().equals(f) || s.getField().startsWith(f + SEPARATOR)));
         boolean containsSort = metadata.getSort() != null &&
-                               fields.stream().anyMatch(f -> Stream.of(metadata.getSort()).anyMatch(s -> s.getField().equals(f) || s.getField().startsWith(f + SEPARATOR)));
+                fields.stream().anyMatch(f -> Stream.of(metadata.getSort()).anyMatch(s -> s.getField().equals(f) || s.getField().startsWith(f + SEPARATOR)));
         return containsSearch || containsSort;
     }
 

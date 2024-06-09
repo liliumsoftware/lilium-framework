@@ -1,24 +1,17 @@
 package ir.baho.framework.repository.impl.jasper;
 
-import net.sf.jasperreports.engine.JRStyle;
 import net.sf.jasperreports.engine.export.CutsInfo;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.export.ooxml.XlsxCellHelper;
 import net.sf.jasperreports.engine.export.ooxml.XlsxDrawingHelper;
 import net.sf.jasperreports.engine.export.ooxml.XlsxDrawingRelsHelper;
-import net.sf.jasperreports.engine.export.ooxml.XlsxRunHelper;
 import net.sf.jasperreports.engine.export.ooxml.XlsxSheetRelsHelper;
 import net.sf.jasperreports.engine.export.zip.ExportZipEntry;
-import net.sf.jasperreports.engine.util.JRStyledText;
 import net.sf.jasperreports.export.XlsxReportConfiguration;
 
 import java.io.Writer;
-import java.text.AttributedCharacterIterator;
-import java.util.Locale;
 
 public class JasperXlsxExporter extends JRXlsxExporter {
-
-    private XlsxRunHelper runHelper;
 
     @Override
     protected void createSheet(CutsInfo xCuts, SheetInfo sheetInfo) {
@@ -53,7 +46,6 @@ public class JasperXlsxExporter extends JRXlsxExporter {
         drawingHelper = new XlsxDrawingHelper(jasperReportsContext, drawingWriter, drawingRelsHelper);
 
         cellHelper = new XlsxCellHelper(jasperReportsContext, sheetWriter, styleHelper);
-        runHelper = new XlsxRunHelper(jasperReportsContext, getExporterKey());
 
         boolean showGridlines = true;
         if (sheetInfo.sheetShowGridlines == null) {
@@ -75,24 +67,6 @@ public class JasperXlsxExporter extends JRXlsxExporter {
         sheetRelsHelper.exportHeader(sheetIndex + 1);
         drawingHelper.exportHeader();
         drawingRelsHelper.exportHeader();
-    }
-
-    @Override
-    protected void exportStyledText(JRStyle style, JRStyledText styledText, Locale locale, boolean isStyledText) {
-        String text = styledText.getText();
-        int runLimit = 0;
-        AttributedCharacterIterator iterator = styledText.getAttributedString().getIterator();
-
-        while (runLimit < styledText.length() && (runLimit = iterator.getRunLimit()) <= styledText.length()) {
-            runHelper.export(
-                    style, iterator.getAttributes(),
-                    text.substring(iterator.getIndex(), runLimit),
-                    locale,
-                    invalidCharReplacement,
-                    isStyledText
-            );
-            iterator.setIndex(runLimit);
-        }
     }
 
 }

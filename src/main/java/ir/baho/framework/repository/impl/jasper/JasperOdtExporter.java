@@ -12,7 +12,6 @@ import net.sf.jasperreports.engine.export.oasis.StyleBuilder;
 import net.sf.jasperreports.engine.export.oasis.WriterHelper;
 import net.sf.jasperreports.engine.export.zip.ExportZipEntry;
 import net.sf.jasperreports.engine.export.zip.FileBufferedZipEntry;
-import net.sf.jasperreports.export.ExportInterruptedException;
 import net.sf.jasperreports.export.ExporterInputItem;
 
 import java.io.IOException;
@@ -64,9 +63,7 @@ public class JasperOdtExporter extends JROdtExporter {
                 PrintPageFormat oldPageFormat = null;
                 JRPrintPage page;
                 for (pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
-                    if (Thread.interrupted()) {
-                        throw new ExportInterruptedException();
-                    }
+                    checkInterrupted();
 
                     PrintPageFormat pageFormat = jasperPrint.getPageFormat(pageIndex);
 

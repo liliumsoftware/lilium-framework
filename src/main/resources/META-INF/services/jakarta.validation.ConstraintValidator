@@ -12,4 +12,6 @@ ir.baho.framework.validation.impl.NationalIdCheck
 ir.baho.framework.validation.impl.PasswordCheck
 ir.baho.framework.validation.impl.PhoneNumberCheck
 ir.baho.framework.validation.impl.PostalCodeCheck
+ir.baho.framework.validation.impl.TotalSizeCheck
 ir.baho.framework.validation.impl.UsernameCheck
+ir.baho.framework.validation.impl.UuidCheck

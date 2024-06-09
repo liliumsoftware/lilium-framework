@@ -27,11 +27,6 @@ public class JasperTableStyle extends TableStyle {
     }
 
     @Override
-    public String getId() {
-        return width + "|" + pageFormatIndex + "|" + isFrame + "|" + isPageBreak + "|" + tabColor;
-    }
-
-    @Override
     public void write(String tableStyleName) {
         styleWriter.write(" <style:style style:name=\"" + tableStyleName + "\"");
         if (!isFrame) {

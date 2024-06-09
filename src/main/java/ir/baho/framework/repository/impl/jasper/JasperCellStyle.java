@@ -54,11 +54,6 @@ public class JasperCellStyle extends CellStyle {
     }
 
     @Override
-    public String getId() {
-        return backcolor + super.getId() + "|" + horizontalAlignment + "|" + verticalAlignment + "|" + shrinkToFit + "|" + wrapText;
-    }
-
-    @Override
     public void write(String cellStyleName) {
         styleWriter.write("<style:style style:name=\"");
         styleWriter.write(cellStyleName);

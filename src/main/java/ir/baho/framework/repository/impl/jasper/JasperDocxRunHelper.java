@@ -1,25 +1,17 @@
 package ir.baho.framework.repository.impl.jasper;
 
-import net.sf.jasperreports.engine.JRDefaultStyleProvider;
-import net.sf.jasperreports.engine.JRPrintText;
-import net.sf.jasperreports.engine.JRStyle;
 import net.sf.jasperreports.engine.JasperReportsContext;
-import net.sf.jasperreports.engine.base.JRBasePrintText;
 import net.sf.jasperreports.engine.export.ooxml.BaseFontHelper;
 import net.sf.jasperreports.engine.export.ooxml.DocxRunHelper;
 import net.sf.jasperreports.engine.type.ColorEnum;
-import net.sf.jasperreports.engine.type.ModeEnum;
 import net.sf.jasperreports.engine.util.JRColorUtil;
-import net.sf.jasperreports.engine.util.JRStringUtil;
 
 import java.awt.Color;
 import java.awt.font.TextAttribute;
 import java.io.Writer;
 import java.text.AttributedCharacterIterator;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 public class JasperDocxRunHelper extends DocxRunHelper {
 
@@ -30,39 +22,6 @@ public class JasperDocxRunHelper extends DocxRunHelper {
         super(jasperReportsContext, writer, docxFontHelper);
         this.docxFontHelper = docxFontHelper;
         this.rtl = rtl;
-    }
-
-    @Override
-    public void export(JRStyle style, Map<AttributedCharacterIterator.Attribute, Object> attributes, String text,
-                       Locale locale, boolean hiddenText, String invalidCharReplacement, Color backcolor, boolean isNewLineAsParagraph) {
-        if (text != null) {
-            write("      <w:r>\n");
-            boolean highlightText = backcolor == null || !backcolor.equals(attributes.get(TextAttribute.BACKGROUND));
-            exportProps(getAttributes(style), attributes, locale, hiddenText, highlightText);
-
-            StringTokenizer tkzer = new StringTokenizer(text, "\n", true);
-            while (tkzer.hasMoreTokens()) {
-                String token = tkzer.nextToken();
-                if ("\n".equals(token)) {
-                    if (isNewLineAsParagraph) {
-                        write("<w:t xml:space=\"preserve\"><w:p/></w:t>\n");
-                    } else {
-                        write("<w:br/>");
-                    }
-                } else {
-                    write("<w:t xml:space=\"preserve\">");
-                    write(JRStringUtil.xmlEncode(token, invalidCharReplacement));
-                    write("</w:t>\n");
-                }
-            }
-            write("      </w:r>\n");
-        }
-    }
-
-    @Override
-    public void exportProps(JRDefaultStyleProvider defaultStyleProvider, JRStyle style, Locale locale) {
-        JRStyle baseStyle = defaultStyleProvider.getStyleResolver().getBaseStyle(style);
-        exportProps(getAttributes(baseStyle), getAttributes(style), locale, false, false);
     }
 
     @Override
@@ -104,7 +63,7 @@ public class JasperDocxRunHelper extends DocxRunHelper {
 
         if (value != null && !value.equals(oldValue)) {
             float fontSize = (Float) value;
-            fontSize = fontSize == 0 ? 0.5f : fontSize;// only the special EMPTY_CELL_STYLE would have font size zero
+            fontSize = fontSize == 0 ? 0.5f : fontSize;
             write("        <w:sz w:val=\"" + (int) (2 * fontSize) + "\" />\n");
         }
 
@@ -144,23 +103,6 @@ public class JasperDocxRunHelper extends DocxRunHelper {
         }
 
         write("       </w:rPr>\n");
-    }
-
-    private Map<AttributedCharacterIterator.Attribute, Object> getAttributes(JRStyle style) {
-        Map<AttributedCharacterIterator.Attribute, Object> styledTextAttributes = new HashMap<>();
-
-        if (style != null) {
-            JRPrintText text = new JRBasePrintText(null);
-            text.setStyle(style);
-
-            fontUtil.getAttributesWithoutAwtFont(styledTextAttributes, text);
-            styledTextAttributes.put(TextAttribute.FOREGROUND, text.getForecolor());
-            if (text.getModeValue() == ModeEnum.OPAQUE) {
-                styledTextAttributes.put(TextAttribute.BACKGROUND, text.getBackcolor());
-            }
-        }
-
-        return styledTextAttributes;
     }
 
 }

@@ -14,15 +14,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring-boot.version>3.2.4</spring-boot.version>
-        <spring-cloud.version>2023.0.1</spring-cloud.version>
-        <javers.version>7.4.1</javers.version>
+        <spring-boot.version>3.3.0</spring-boot.version>
+        <spring-cloud.version>2023.0.2</spring-cloud.version>
+        <javers.version>7.4.5</javers.version>
         <dynamicreports.version>6.20.1</dynamicreports.version>
-        <jasperreports.version>6.21.2</jasperreports.version>
-        <jaxb.version>4.0.4</jaxb.version>
+        <jasperreports.version>6.21.3</jasperreports.version>
+        <jaxb.version>4.0.5</jaxb.version>
         <poi.version>5.2.5</poi.version>
-        <commons.csv.version>1.10.0</commons.csv.version>
-        <icu4j.version>74.2</icu4j.version>
+        <commons.csv.version>1.11.0</commons.csv.version>
+        <icu4j.version>75.1</icu4j.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
 

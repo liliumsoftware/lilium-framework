@@ -82,9 +82,9 @@ public interface BaseRepository<E, ID> extends Repository<E, ID> {
 
     default boolean isNumber(Class<?> type) {
         return Number.class.isAssignableFrom(type)
-               || byte.class == type || short.class == type
-               || int.class == type || long.class == type
-               || float.class == type || double.class == type;
+                || byte.class == type || short.class == type
+                || int.class == type || long.class == type
+                || float.class == type || double.class == type;
     }
 
 }

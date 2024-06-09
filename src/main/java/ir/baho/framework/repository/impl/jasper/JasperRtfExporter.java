@@ -261,7 +261,7 @@ public class JasperRtfExporter extends JRRtfExporter {
         contentWriter.write(String.valueOf(LengthUtil.emu(rightPadding)));
         contentWriter.write("}}");
         contentWriter.write("{\\sp{\\sn fLine}{\\sv 0}}");
-        contentWriter.write("{\\shptxt{\\pard");
+        contentWriter.write("{\\shptxt{\\pard ");
         if (text.getRunDirectionValue() == RunDirectionEnum.RTL) {
             contentWriter.write("\\rtlpar");
         }
@@ -403,7 +403,7 @@ public class JasperRtfExporter extends JRRtfExporter {
                 float cropLeft = 0;
                 float cropBottom = 0;
                 float cropRight = 0;
-                int angle = 0;
+                int angle;
 
                 switch (printImage.getScaleImageValue()) {
                     case CLIP -> {
@@ -547,6 +547,7 @@ public class JasperRtfExporter extends JRRtfExporter {
                                         cropBottom = 0;
                                     }
                                 }
+                                angle = 0;
                             }
                         }
 
@@ -560,8 +561,7 @@ public class JasperRtfExporter extends JRRtfExporter {
                             case LEFT -> angle = -90;
                             case RIGHT -> angle = 90;
                             case UPSIDE_DOWN -> angle = 180;
-                            default -> {
-                            }
+                            default -> angle = 0;
                         }
                     }
                     default -> {
@@ -628,8 +628,10 @@ public class JasperRtfExporter extends JRRtfExporter {
                                 imageHeight = (int) (normalHeight * ratioY);
                                 xoffset = (int) (ImageUtil.getXAlignFactor(printImage) * (availableImageWidth - imageWidth));
                                 yoffset = (int) (ImageUtil.getYAlignFactor(printImage) * (availableImageHeight - imageHeight));
+                                angle = 0;
                             }
                         }
+
                     }
                 }
 
