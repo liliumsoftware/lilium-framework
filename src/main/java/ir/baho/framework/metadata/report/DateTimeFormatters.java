@@ -2,6 +2,7 @@ package ir.baho.framework.metadata.report;
 
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.SimpleDateFormat;
+import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.i18n.DateTimes;
 import ir.baho.framework.i18n.Strings;
 import ir.baho.framework.time.CalendarType;
@@ -20,19 +21,18 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DateTimeFormatters {
 
-    private final Locale locale;
     private final ZoneId zoneId;
     private final DateFormat dateFormat;
     private final DateFormat dateTimeFormat;
     private final DateTimeFormatter timeFormat;
     private final DurationType durationType;
 
-    public DateTimeFormatters(Locale locale, ZoneId zoneId, CalendarType calendarType,
+    public DateTimeFormatters(ZoneId zoneId, CalendarType calendarType,
                               String dateFormat, String dateTimeFormat, String timeFormat, DurationType durationType) {
-        this.locale = locale == null ? Locale.getDefault() : locale;
         this.zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
         this.dateFormat = new SimpleDateFormat(dateFormat == null ? "yyyy-MM-dd" : dateFormat,
                 calendarType == CalendarType.PERSIAN ? DateTimes.FA_ULOCALE : DateTimes.EN_ULOCALE);
@@ -48,6 +48,7 @@ public class DateTimeFormatters {
         return new AbstractSimpleExpression<>() {
             @Override
             public Object evaluate(ReportParameters reportParameters) {
+                Locale locale = Objects.equals(reportParameters.getParameterValue(StringConverter.DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
                 return Strings.getText(dateTimeFormat.format(Date.from(LocalDateTime.now()
                         .atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toInstant())), locale);
             }
@@ -62,7 +63,8 @@ public class DateTimeFormatters {
                     return null;
                 }
                 LocalDate date = ((Timestamp) value).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                return Strings.getText(dateFormat.format(Date.from((date).atStartOfDay().atZone(LocaleContextHolder.getTimeZone().toZoneId()).toInstant())), reportParameters.getLocale());
+                Locale locale = Objects.equals(reportParameters.getParameterValue(StringConverter.DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
+                return Strings.getText(dateFormat.format(Date.from((date).atStartOfDay().atZone(LocaleContextHolder.getTimeZone().toZoneId()).toInstant())), locale);
             }
         };
     }
@@ -75,6 +77,7 @@ public class DateTimeFormatters {
                     return null;
                 }
                 LocalDateTime dateTime = LocalDateTime.ofInstant(((Timestamp) value).toInstant(), zoneId);
+                Locale locale = Objects.equals(reportParameters.getParameterValue(StringConverter.DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
                 return Strings.getText(dateTimeFormat.format(Date.from(dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toInstant())), locale);
             }
         };
@@ -88,7 +91,8 @@ public class DateTimeFormatters {
                     return null;
                 }
                 LocalTime time = ((Timestamp) value).toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
-                return Strings.getText(timeFormat.format(time), reportParameters.getLocale());
+                Locale locale = Objects.equals(reportParameters.getParameterValue(StringConverter.DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
+                return Strings.getText(timeFormat.format(time), locale);
             }
         };
     }
@@ -126,7 +130,8 @@ public class DateTimeFormatters {
                         text = '-' + text;
                     }
                 }
-                return Strings.getText(text, reportParameters.getLocale());
+                Locale locale = Objects.equals(reportParameters.getParameterValue(StringConverter.DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
+                return Strings.getText(text, locale);
             }
         };
     }

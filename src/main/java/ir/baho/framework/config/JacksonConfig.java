@@ -103,13 +103,13 @@ public class JacksonConfig {
     }
 
     @Bean
-    public SimpleModule persianStringModule() {
+    SimpleModule persianStringModule() {
         return new SimpleModule("persianStringModule").addDeserializer(String.class, new PersianStringConverter());
     }
 
     @Bean
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public SimpleModule enumModule() {
+    SimpleModule enumModule() {
         return new SimpleModule("enumModule").addSerializer(new JsonSerializer<Enum>() {
             @Override
             public void serialize(Enum e, JsonGenerator generator, SerializerProvider provider) throws IOException {
@@ -157,28 +157,28 @@ public class JacksonConfig {
     }
 
     @Bean
-    public SimpleModule dateModule() {
+    SimpleModule dateModule() {
         return new SimpleModule("dateModule")
                 .addSerializer(LocalDate.class, new DateSerializer(dateTimes, currentUser))
                 .addDeserializer(LocalDate.class, new DateDeserializer(dateTimes, currentUser));
     }
 
     @Bean
-    public SimpleModule datetimeModule() {
+    SimpleModule datetimeModule() {
         return new SimpleModule("datetimeModule")
                 .addSerializer(LocalDateTime.class, new DateTimeSerializer(dateTimes, currentUser))
                 .addDeserializer(LocalDateTime.class, new DateTimeDeserializer(dateTimes, currentUser));
     }
 
     @Bean
-    public SimpleModule timeModule() {
+    SimpleModule timeModule() {
         return new SimpleModule("timeModule")
                 .addSerializer(LocalTime.class, new TimeSerializer(dateTimes, currentUser))
                 .addDeserializer(LocalTime.class, new TimeDeserializer(dateTimes, currentUser));
     }
 
     @Bean
-    public SimpleModule durationModule() {
+    SimpleModule durationModule() {
         return new SimpleModule("durationModule")
                 .addSerializer(Duration.class, new DurationSerializer(dateTimes, currentUser))
                 .addDeserializer(Duration.class, new DurationDeserializer(dateTimes, currentUser));

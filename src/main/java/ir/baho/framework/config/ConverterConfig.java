@@ -20,49 +20,49 @@ public class ConverterConfig {
 
     @Bean
     @ConditionalOnMissingBean(value = String.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<String> stringConverter() {
+    StringConverter<String> stringConverter() {
         return StringConverter.stringConverter();
     }
 
     @Bean
     @ConditionalOnMissingBean(value = BigDecimal.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<BigDecimal> bigDecimalStringConverter() {
+    StringConverter<BigDecimal> bigDecimalStringConverter() {
         return new BigDecimalConverter();
     }
 
     @Bean
     @ConditionalOnMissingBean(value = BigInteger.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<BigInteger> bigIntegerStringConverter() {
+    StringConverter<BigInteger> bigIntegerStringConverter() {
         return new BigIntegerConverter();
     }
 
     @Bean
     @ConditionalOnMissingBean(value = Boolean.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<Boolean> booleanStringConverter() {
+    StringConverter<Boolean> booleanStringConverter() {
         return new BooleanConverter();
     }
 
     @Bean
     @ConditionalOnMissingBean(value = Character.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<Character> characterStringConverter() {
+    StringConverter<Character> characterStringConverter() {
         return new CharacterConverter();
     }
 
     @Bean
     @ConditionalOnMissingBean(value = Double.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<Double> doubleStringConverter() {
+    StringConverter<Double> doubleStringConverter() {
         return new DoubleConverter();
     }
 
     @Bean
     @ConditionalOnMissingBean(value = Integer.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<Integer> integerStringConverter() {
+    StringConverter<Integer> integerStringConverter() {
         return new IntegerConverter();
     }
 
     @Bean
     @ConditionalOnMissingBean(value = Long.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<Long> longStringConverter() {
+    StringConverter<Long> longStringConverter() {
         return new LongConverter();
     }
 

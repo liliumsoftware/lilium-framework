@@ -34,7 +34,7 @@ public class FeignConfig implements FeignFormatterRegistrar {
     }
 
     @Bean
-    public RequestInterceptor requestInterceptor() {
+    RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
             requestTemplate.header(HttpHeaders.ACCEPT_LANGUAGE, LocaleContextHolder.getLocale().toString());
             requestTemplate.header(Headers.TIME_ZONE, LocaleContextHolder.getTimeZone().getID());

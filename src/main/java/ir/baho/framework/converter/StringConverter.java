@@ -14,6 +14,8 @@ import java.util.Objects;
 @NoArgsConstructor
 public abstract class StringConverter<E> extends AbstractValueFormatter<String, Object> implements Converter<String, E>, Formatter<E> {
 
+    public static final String DIGITS_UNICODE = "DIGITS_UNICODE";
+
     public StringConverter(String name) {
         super(name);
     }
@@ -33,7 +35,8 @@ public abstract class StringConverter<E> extends AbstractValueFormatter<String, 
         if (value == null) {
             return null;
         }
-        return print((E) value, reportParameters.getLocale());
+        Locale locale = Objects.equals(reportParameters.getParameterValue(DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
+        return print((E) value, locale);
     }
 
     @Override

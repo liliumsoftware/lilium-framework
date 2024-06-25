@@ -11,7 +11,7 @@ public class UserConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public CurrentUser currentUser() {
+    CurrentUser currentUser() {
         return new DefaultCurrentUser();
     }
 

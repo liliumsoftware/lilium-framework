@@ -26,25 +26,25 @@ public class DateTimeConfig {
 
     @Bean
     @ConditionalOnMissingBean(value = LocalDate.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<LocalDate> dateStringConverter() {
+    StringConverter<LocalDate> dateStringConverter() {
         return new DateConverter(dateTimes, currentUser);
     }
 
     @Bean
     @ConditionalOnMissingBean(value = LocalDateTime.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<LocalDateTime> dateTimeStringConverter() {
+    StringConverter<LocalDateTime> dateTimeStringConverter() {
         return new DateTimeConverter(dateTimes, currentUser);
     }
 
     @Bean
     @ConditionalOnMissingBean(value = LocalTime.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<LocalTime> timeStringConverter() {
+    StringConverter<LocalTime> timeStringConverter() {
         return new TimeConverter(dateTimes, currentUser);
     }
 
     @Bean
     @ConditionalOnMissingBean(value = Duration.class, parameterizedContainer = StringConverter.class)
-    public StringConverter<Duration> durationStringConverter() {
+    StringConverter<Duration> durationStringConverter() {
         return new DurationConverter(dateTimes, currentUser);
     }
 

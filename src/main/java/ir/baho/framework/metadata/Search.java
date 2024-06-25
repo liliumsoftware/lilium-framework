@@ -12,10 +12,10 @@ import java.util.List;
 public class Search implements Serializable {
 
     @NotBlank
-    private final String field;
+    private String field;
 
     @NotNull
-    private final Constraint constraint;
+    private Constraint constraint;
 
     private Comparable<?> value;
     private Comparable<?> another;

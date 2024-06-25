@@ -62,29 +62,31 @@ public class ReportDesign {
 
     private Boolean paginate;
 
-    @Min(74)
-    @Max(4008)
-    private int width = 595;
+    private Boolean digitsUnicode;
 
     @Min(74)
     @Max(4008)
-    private int height = 842;
+    private Integer width;
+
+    @Min(74)
+    @Max(4008)
+    private Integer height;
 
     @Min(0)
     @Max(100)
-    private int marginTop = 20;
+    private Integer marginTop;
 
     @Min(0)
     @Max(100)
-    private int marginLeft = 20;
+    private Integer marginLeft;
 
     @Min(0)
     @Max(100)
-    private int marginRight = 20;
+    private Integer marginRight;
 
     @Min(0)
     @Max(100)
-    private int marginBottom = 20;
+    private Integer marginBottom;
 
     @NotNull
     private ReportType type = ReportType.TABLE_ONLY;

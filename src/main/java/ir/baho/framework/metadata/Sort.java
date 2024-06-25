@@ -1,18 +1,18 @@
 package ir.baho.framework.metadata;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class Sort implements Serializable {
 
     @NotBlank
-    private final String field;
-    private final boolean asc;
+    private String field;
+    private boolean asc;
 
     public Sort(String field) {
         this.field = field;

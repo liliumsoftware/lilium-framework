@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @NoArgsConstructor
@@ -70,10 +71,18 @@ public class Metadata implements SortMetadata, Serializable {
     }
 
     public DateTimeFormatters getDateTimeFormatters() {
-        return new DateTimeFormatters(currentUser.locale(),
-                currentUser.zoneId(), currentUser.calendarType(),
+        return new DateTimeFormatters(currentUser.zoneId(), currentUser.calendarType(),
                 currentUser.dateFormat(), currentUser.dateTimeFormat(),
                 currentUser.timeFormat(), currentUser.durationType());
+    }
+
+    public void renameField(String from, String to) {
+        if (sort != null) {
+            Stream.of(sort).filter(s -> Objects.equals(s.getField(), from)).forEach(s -> s.setField(to));
+        }
+        if (search != null) {
+            Stream.of(search).filter(s -> Objects.equals(s.getField(), from)).forEach(s -> s.setField(to));
+        }
     }
 
     @AssertTrue(message = "{ir.baho.framework.search.Constraint}")

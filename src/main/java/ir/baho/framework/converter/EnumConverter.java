@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -52,8 +53,10 @@ public class EnumConverter<E extends Enum<E>> extends StringConverter<E> {
                             .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
                 }
                 case TEXT -> {
-                    return EnumSet.allOf(type).stream().filter(e -> value.equals(messageResource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name())))
-                            .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
+                    Optional<E> optionalEnum = EnumSet.allOf(type).stream().filter(e -> value
+                            .equals(messageResource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()))).findAny();
+                    return optionalEnum.orElseGet(() -> EnumSet.allOf(type).stream().filter(e -> value.equals(e.name()))
+                            .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value)));
                 }
             }
         }

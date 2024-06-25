@@ -36,6 +36,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
+import net.sf.dynamicreports.report.builder.MarginBuilder;
 import net.sf.dynamicreports.report.builder.chart.AbstractBaseChartBuilder;
 import net.sf.dynamicreports.report.builder.chart.AxisFormatBuilder;
 import net.sf.dynamicreports.report.builder.chart.CategoryChartSerieBuilder;
@@ -345,6 +346,9 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
         if (design.getPaginate() != null) {
             builder.setIgnorePagination(!design.getPaginate());
         }
+        if (design.getDigitsUnicode() != null) {
+            builder.setParameter(StringConverter.DIGITS_UNICODE, design.getDigitsUnicode());
+        }
 
         TextFieldBuilder<?> dateTime = DynamicReports.cmp.text(metadata.getDateTimeFormatters().now());
         if (design.getDateTimeStyle() != null) {
@@ -390,10 +394,25 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
             }
             builder.addPageFooter(pageNumber);
         }
-        builder.setPageFormat(design.getWidth(), design.getHeight(), PageOrientation.PORTRAIT);
-        builder.setPageMargin(DynamicReports.margin()
-                .setTop(design.getMarginTop()).setLeft(design.getMarginLeft())
-                .setRight(design.getMarginRight()).setBottom(design.getMarginBottom()));
+        if (design.getWidth() != null && design.getHeight() != null) {
+            builder.setPageFormat(design.getWidth(), design.getHeight(), PageOrientation.PORTRAIT);
+        } else {
+            builder.ignorePageWidth();
+        }
+        MarginBuilder margin = DynamicReports.margin();
+        if (design.getMarginTop() != null) {
+            margin = margin.setTop(design.getMarginTop());
+        }
+        if (design.getMarginLeft() != null) {
+            margin = margin.setLeft(design.getMarginLeft());
+        }
+        if (design.getMarginRight() != null) {
+            margin = margin.setRight(design.getMarginRight());
+        }
+        if (design.getMarginBottom() != null) {
+            margin = margin.setBottom(design.getMarginBottom());
+        }
+        builder.setPageMargin(margin);
         return builder;
     }
 
@@ -451,7 +470,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                 ColumnBuilder<?, ?> col;
                 if (type == boolean.class || type == Boolean.class) {
                     BooleanComponentType booleanComponentType = BooleanComponentType.valueOf(messageResource
-                            .getMessageOrDefault(reportColumn.getName(), BooleanComponentType.IMAGE_CHECKBOX_1.name()));
+                            .getMessageOrDefault(reportColumn.getName() + ".type", BooleanComponentType.IMAGE_CHECKBOX_1.name()));
                     BooleanColumnBuilder column = DynamicReports.col
                             .booleanColumn(reportColumn.getHeader(), names ? entry.getKey() : "COLUMN_" + colNumber++)
                             .setComponentType(booleanComponentType).setEmptyWhenNullValue(true);
