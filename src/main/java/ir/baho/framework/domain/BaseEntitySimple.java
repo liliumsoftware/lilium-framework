@@ -36,7 +36,7 @@ public abstract class BaseEntitySimple<E extends BaseEntitySimple<E, ID>, ID ext
     @DiffIgnore
     @Version
     @Column(name = "VERSION")
-    private int version = 1;
+    private int version;
 
     @Transient
     @SuppressWarnings("unchecked")

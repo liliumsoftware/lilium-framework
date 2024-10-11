@@ -121,7 +121,7 @@ public class MongoDbDataSource implements JRDataSource {
         if (requiredClass == Object.class) {
             return value;
         }
-        log.debug("Converting value " + value + " with type " + value.getClass().getName() + " to " + requiredClass.getName() + " type");
+        log.trace("Converting value {} with type {} to {} type", value, value.getClass().getName(), requiredClass.getName());
         try {
             if (requiredClass == String.class) {
                 return value.toString();

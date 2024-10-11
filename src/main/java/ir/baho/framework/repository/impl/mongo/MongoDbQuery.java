@@ -67,7 +67,7 @@ public class MongoDbQuery {
             queryString = queryString.substring(0, queryString.length() - 1);
         }
         BasicDBObject parseResult = BasicDBObject.parse(queryString);
-        log.debug("Query: " + queryString);
+        log.debug("Query: {}", queryString);
         this.fixQueryObject(this.queryObject = parseResult, this.parameters);
         if (this.queryObject.containsField(RUN_COMMAND_KEY)) {
             BasicDBObject command = (BasicDBObject) this.queryObject.removeField(RUN_COMMAND_KEY);
@@ -112,7 +112,7 @@ public class MongoDbQuery {
         }
         ArrayList<Bson> commandObject = new ArrayList<>(((BasicDBList) commandValue).size());
         ((BasicDBList) commandValue).forEach(command -> commandObject.add((Bson) command));
-        log.debug("Command object: " + commandObject);
+        log.debug("Command object: {}", commandObject);
         if (collectionName != null && !collectionName.isEmpty()) {
             this.iterator = this.mongoDatabase.getCollection(collectionName).aggregate(commandObject, BasicDBObject.class).iterator();
         } else {

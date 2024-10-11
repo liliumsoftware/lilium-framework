@@ -1,5 +1,6 @@
 package ir.baho.framework.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -37,6 +38,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,17 +70,26 @@ public class JacksonConfig {
                 .addSerializer(new JsonSerializer<Enum>() {
                     @Override
                     public void serialize(Enum e, JsonGenerator generator, SerializerProvider provider) throws IOException {
-                        switch (options.getEnumType()) {
-                            case NAME -> generator.writeString(e.name());
-                            case TEXT ->
-                                    generator.writeString(resource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()));
-                            default -> {
-                                if (e instanceof EnumValue enumValue) {
-                                    generator.writeObject(enumValue.getValue());
-                                } else {
-                                    generator.writeString(e.name());
+                        try {
+                            JsonProperty jsonProperty = e.getClass().getField(e.name()).getAnnotation(JsonProperty.class);
+                            if (jsonProperty != null) {
+                                generator.writeString(jsonProperty.value());
+                            } else {
+                                switch (options.getEnumType()) {
+                                    case NAME -> generator.writeString(e.name());
+                                    case TEXT ->
+                                            generator.writeString(resource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()));
+                                    default -> {
+                                        if (e instanceof EnumValue enumValue) {
+                                            generator.writeObject(enumValue.getValue());
+                                        } else {
+                                            generator.writeString(e.name());
+                                        }
+                                    }
                                 }
                             }
+                        } catch (NoSuchFieldException ex) {
+                            generator.writeString(e.name());
                         }
                     }
 
@@ -93,7 +104,18 @@ public class JacksonConfig {
                             return new JsonDeserializer<>() {
                                 @Override
                                 public Object deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-                                    return EnumConverter.getEnum(resource, options.getEnumType(), (Class<Enum>) beanDesc.getBeanClass(), parser.getText());
+                                    String jsonValue = parser.getText();
+                                    Class<?> enumClass = beanDesc.getBeanClass();
+                                    for (Field field : enumClass.getDeclaredFields()) {
+                                        JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
+                                        if (jsonProperty != null && jsonProperty.value().equals(jsonValue)) {
+                                            try {
+                                                return Enum.valueOf((Class<Enum>) enumClass, field.getName());
+                                            } catch (IllegalArgumentException ignored) {
+                                            }
+                                        }
+                                    }
+                                    return EnumConverter.getEnum(resource, options.getEnumType(), (Class<Enum>) beanDesc.getBeanClass(), jsonValue);
                                 }
                             };
                         }
@@ -113,25 +135,34 @@ public class JacksonConfig {
         return new SimpleModule("enumModule").addSerializer(new JsonSerializer<Enum>() {
             @Override
             public void serialize(Enum e, JsonGenerator generator, SerializerProvider provider) throws IOException {
-                if (RequestContextHolder.getRequestAttributes() != null) {
-                    try {
-                        EnumType enumType = EnumType.valueOf(getEnumType().orElse(e instanceof EnumValue ? EnumType.VALUE.name() : EnumType.NAME.name()));
-                        switch (enumType) {
-                            case NAME -> generator.writeString(e.name());
-                            case TEXT ->
-                                    generator.writeString(messageResource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()));
-                            default -> {
-                                if (e instanceof EnumValue enumValue) {
-                                    generator.writeObject(enumValue.getValue());
-                                } else {
-                                    generator.writeString(e.name());
+                try {
+                    JsonProperty jsonProperty = e.getClass().getField(e.name()).getAnnotation(JsonProperty.class);
+                    if (jsonProperty != null) {
+                        generator.writeString(jsonProperty.value());
+                    } else {
+                        if (RequestContextHolder.getRequestAttributes() != null) {
+                            try {
+                                EnumType enumType = EnumType.valueOf(getEnumType().orElse(e instanceof EnumValue ? EnumType.VALUE.name() : EnumType.NAME.name()));
+                                switch (enumType) {
+                                    case NAME -> generator.writeString(e.name());
+                                    case TEXT ->
+                                            generator.writeString(messageResource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()));
+                                    default -> {
+                                        if (e instanceof EnumValue enumValue) {
+                                            generator.writeObject(enumValue.getValue());
+                                        } else {
+                                            generator.writeString(e.name());
+                                        }
+                                    }
                                 }
+                            } catch (IllegalArgumentException ex) {
+                                generator.writeString(e.name());
                             }
+                        } else {
+                            generator.writeString(e.name());
                         }
-                    } catch (IllegalArgumentException ex) {
-                        generator.writeString(e.name());
                     }
-                } else {
+                } catch (NoSuchFieldException ex) {
                     generator.writeString(e.name());
                 }
             }
@@ -147,6 +178,17 @@ public class JacksonConfig {
                     return new JsonDeserializer<>() {
                         @Override
                         public Object deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+                            String jsonValue = parser.getText();
+                            Class<?> enumClass = beanDesc.getBeanClass();
+                            for (Field field : enumClass.getDeclaredFields()) {
+                                JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
+                                if (jsonProperty != null && jsonProperty.value().equals(jsonValue)) {
+                                    try {
+                                        return Enum.valueOf((Class<Enum>) enumClass, field.getName());
+                                    } catch (IllegalArgumentException ignored) {
+                                    }
+                                }
+                            }
                             return EnumConverter.getEnum(messageResource, currentUser.enumType(), (Class<Enum>) beanDesc.getBeanClass(), parser.getText());
                         }
                     };

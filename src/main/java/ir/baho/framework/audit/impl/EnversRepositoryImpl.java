@@ -249,7 +249,7 @@ public class EnversRepositoryImpl<E extends BaseEntitySimple<?, ID>, ID extends 
     }
 
     @SuppressWarnings("unchecked")
-    static class QueryResult<E> {
+    protected static class QueryResult<E> {
 
         private final E entity;
         private final Object metadata;

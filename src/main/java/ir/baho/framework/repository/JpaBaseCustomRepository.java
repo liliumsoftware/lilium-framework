@@ -48,7 +48,7 @@ public abstract class JpaBaseCustomRepository {
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<E> countRoot = (Root<E>) countQuery.from(root.getJavaType());
         countQuery.where(specification.toPredicate(countRoot, criteriaQuery, criteriaBuilder));
-        countQuery.select(criteriaBuilder.count(countRoot));
+        countQuery.select(criteriaBuilder.countDistinct(countRoot));
         return executeCountQuery(entityManager.createQuery(countQuery));
     }
 
