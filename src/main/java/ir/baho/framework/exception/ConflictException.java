@@ -13,7 +13,7 @@ public class ConflictException extends RuntimeException {
     private final Map<String, List<Object>> keyParams;
 
     public ConflictException(String key, Object... params) {
-        super(key + ": " + Arrays.asList(params));
+        super(params.length == 0 ? key : key + ": " + Arrays.asList(params));
         this.keyParams = Map.of(key, Arrays.asList(params));
     }
 

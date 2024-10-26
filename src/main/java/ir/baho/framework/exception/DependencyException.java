@@ -13,7 +13,7 @@ public class DependencyException extends RuntimeException {
     private final Map<String, List<Object>> keyParams;
 
     public DependencyException(String key, Object... params) {
-        super(key + ": " + Arrays.asList(params));
+        super(params.length == 0 ? key : key + ": " + Arrays.asList(params));
         this.keyParams = Map.of(key, Arrays.asList(params));
     }
 

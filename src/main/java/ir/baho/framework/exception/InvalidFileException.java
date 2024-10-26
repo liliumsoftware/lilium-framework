@@ -10,16 +10,16 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Getter
-public class NotFoundException extends RuntimeException {
+public class InvalidFileException extends RuntimeException {
 
     private Map<String, List<Object>> keyParams;
 
-    public NotFoundException(String key, Object... params) {
+    public InvalidFileException(String key, Object... params) {
         super(params.length == 0 ? key : key + ": " + Arrays.asList(params));
         this.keyParams = Map.of(key, Arrays.asList(params));
     }
 
-    public NotFoundException(Map<String, List<Object>> keyParams) {
+    public InvalidFileException(Map<String, List<Object>> keyParams) {
         super(keyParams.entrySet().stream().map((e) -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining(",\n")));
         this.keyParams = keyParams;
     }

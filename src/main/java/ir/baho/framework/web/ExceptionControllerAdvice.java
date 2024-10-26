@@ -6,6 +6,7 @@ import ir.baho.framework.exception.DependencyException;
 import ir.baho.framework.exception.Error;
 import ir.baho.framework.exception.FieldError;
 import ir.baho.framework.exception.HttpError;
+import ir.baho.framework.exception.InvalidFileException;
 import ir.baho.framework.exception.MetadataConstraintAccessException;
 import ir.baho.framework.exception.MetadataConvertException;
 import ir.baho.framework.exception.MetadataFieldAccessException;
@@ -149,6 +150,19 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
                 .toList();
         return new HttpError(HttpStatus.NOT_FOUND, e.getMessage(), errors);
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ExceptionHandler(InvalidFileException.class)
+    public HttpError handleInvalidFileException(InvalidFileException e) {
+        if (e.getKeyParams() == null) {
+            return new HttpError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, messageResource.getMessage("invalid.file"));
+        }
+        List<Error> errors = e.getKeyParams().entrySet().stream()
+                .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
+                .toList();
+        return new HttpError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, e.getMessage(), errors);
     }
 
     @ResponseBody
