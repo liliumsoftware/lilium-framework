@@ -23,7 +23,9 @@ public abstract class JpaBaseCustomRepository {
                                      Pageable pageable, Specification<E> specification) {
         long total = getTotal(root, criteriaQuery, criteriaBuilder, specification);
         criteriaQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
-        criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+        if (pageable.getSort().isSorted()) {
+            criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+        }
         return getPage(criteriaQuery, total, pageable);
     }
 
@@ -32,7 +34,9 @@ public abstract class JpaBaseCustomRepository {
         long total = getTotal(root, criteriaQuery, criteriaBuilder, specification);
         criteriaQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
         consumer.accept(root, criteriaQuery, criteriaBuilder);
-        criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+        if (pageable.getSort().isSorted()) {
+            criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+        }
         return getPage(criteriaQuery, total, pageable);
     }
 

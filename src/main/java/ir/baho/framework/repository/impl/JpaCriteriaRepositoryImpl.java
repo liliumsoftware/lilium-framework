@@ -114,6 +114,11 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
     }
 
     @Override
+    public void refresh(E entity) {
+        entityManager.refresh(entity);
+    }
+
+    @Override
     public E findOne(Metadata metadata, PredicateCriteriaSpecification<E> specification) {
         Map<String, Expression<?>> fields = new LinkedHashMap<>();
         Specification<E> spec = getSpecification(metadata, specification, fields, new HashMap<>());

@@ -65,6 +65,8 @@ public interface JpaCriteriaRepository<E extends Entity<?, ID>, ID extends Seria
 
     void detach(E entity);
 
+    void refresh(E entity);
+
     E findOne(Metadata metadata, PredicateCriteriaSpecification<E> specification);
 
     Page<E> findAll(PageMetadata metadata, PredicateCriteriaSpecification<E> specification);
