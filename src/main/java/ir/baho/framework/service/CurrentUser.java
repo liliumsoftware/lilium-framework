@@ -20,6 +20,12 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
 
     String username();
 
+    String email();
+
+    String firstName();
+
+    String lastName();
+
     Locale locale();
 
     ZoneId zoneId();
@@ -39,6 +45,10 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
     List<String> roles();
 
     List<String> groups();
+
+    List<String> scopes();
+
+    List<String> permissions();
 
     @Override
     default Locale getLocale() {
@@ -63,8 +73,8 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
     }
 
     default UserOptions getOptions() {
-        return new UserOptions(username(), LocaleContextHolder.getLocale(), LocaleContextHolder.getTimeZone().toZoneId(),
-                calendarType(), dateFormat(), dateTimeFormat(), timeFormat(), durationType(), enumType(), roles(), groups(), isRtl());
+        return new UserOptions(username(), email(), firstName(), lastName(), LocaleContextHolder.getLocale(), LocaleContextHolder.getTimeZone().toZoneId(),
+                calendarType(), dateFormat(), dateTimeFormat(), timeFormat(), durationType(), enumType(), roles(), groups(), scopes(), permissions(), isRtl());
     }
 
 }

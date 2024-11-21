@@ -32,6 +32,21 @@ public class OptionsCurrentUser implements CurrentUser {
     }
 
     @Override
+    public String email() {
+        return options.getEmail();
+    }
+
+    @Override
+    public String firstName() {
+        return options.getFirstName();
+    }
+
+    @Override
+    public String lastName() {
+        return options.getLastName();
+    }
+
+    @Override
     public CalendarType calendarType() {
         return options.getCalendarType();
     }
@@ -69,6 +84,16 @@ public class OptionsCurrentUser implements CurrentUser {
     @Override
     public List<String> groups() {
         return options.getGroups();
+    }
+
+    @Override
+    public List<String> scopes() {
+        return options.getScopes();
+    }
+
+    @Override
+    public List<String> permissions() {
+        return options.getPermissions();
     }
 
 }

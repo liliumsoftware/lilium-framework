@@ -12,7 +12,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,6 +35,21 @@ public class DefaultCurrentUser implements CurrentUser {
         return Optional.ofNullable(getTokenValue("preferred_username"))
                 .or(() -> Optional.ofNullable(getTokenValue("email")))
                 .orElse("anonymousUser");
+    }
+
+    @Override
+    public String email() {
+        return getTokenValue("email");
+    }
+
+    @Override
+    public String firstName() {
+        return getTokenValue("given_name");
+    }
+
+    @Override
+    public String lastName() {
+        return getTokenValue("family_name");
     }
 
     @Override
@@ -114,6 +131,20 @@ public class DefaultCurrentUser implements CurrentUser {
     public List<String> groups() {
         Map<String, List<String>> value = getToken();
         return Optional.ofNullable(value).map(v -> v.get("groups")).orElse(List.of());
+    }
+
+    @Override
+    public List<String> scopes() {
+        Map<String, String> value = getToken();
+        return Optional.ofNullable(value).map(v -> v.get("scope")).map(v -> v.split(" "))
+                .map(Arrays::asList).orElse(List.of());
+    }
+
+    @Override
+    public List<String> permissions() {
+        Map<String, Map<String, Map<String, List<String>>>> value = getToken();
+        return Optional.ofNullable(value).map(m -> m.get("resource_access")).map(r -> r.values().stream()
+                .flatMap(account -> account.values().stream()).flatMap(Collection::stream).toList()).orElse(List.of());
     }
 
     private String getHeaderValue(String name) {

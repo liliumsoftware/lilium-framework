@@ -19,6 +19,12 @@ public class UserOptions implements Serializable {
 
     private String username;
 
+    private String email;
+
+    private String firstName;
+
+    private String lastName;
+
     private Locale locale;
 
     private ZoneId zoneId;
@@ -38,6 +44,10 @@ public class UserOptions implements Serializable {
     private List<String> roles;
 
     private List<String> groups;
+
+    private List<String> scopes;
+
+    private List<String> permissions;
 
     private boolean rtl;
 
