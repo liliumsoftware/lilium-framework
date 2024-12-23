@@ -3,6 +3,7 @@ package ir.baho.framework.repository.impl;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -12,15 +13,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class TupleConverter implements Converter<Object, Object> {
 
     private final ReturnedType type;
+    private final UnaryOperator<Tuple> tupleWrapper;
 
     public TupleConverter(ReturnedType type) {
+        this(type, false);
+    }
+
+    public TupleConverter(ReturnedType type, boolean nativeQuery) {
         Assert.notNull(type, "Returned type must not be null");
         this.type = type;
+        this.tupleWrapper = nativeQuery ? FallbackTupleWrapper::new : UnaryOperator.identity();
     }
 
     @Override
@@ -39,10 +47,10 @@ public class TupleConverter implements Converter<Object, Object> {
             }
         }
 
-        return new TupleBackedMap(tuple);
+        return new TupleBackedMap(tupleWrapper.apply(tuple));
     }
 
-    private static class TupleBackedMap implements Map<String, Object> {
+    static class TupleBackedMap implements Map<String, Object> {
 
         private static final String UNMODIFIABLE_MESSAGE = "A TupleBackedMap cannot be modified";
 
@@ -126,6 +134,70 @@ public class TupleConverter implements Converter<Object, Object> {
             return tuple.getElements().stream()
                     .map(e -> new HashMap.SimpleEntry<String, Object>(e.getAlias(), tuple.get(e)))
                     .collect(Collectors.toSet());
+        }
+
+    }
+
+    static class FallbackTupleWrapper implements Tuple {
+
+        private final Tuple delegate;
+        private final UnaryOperator<String> fallbackNameTransformer = JdbcUtils::convertPropertyNameToUnderscoreName;
+
+        FallbackTupleWrapper(Tuple delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public <X> X get(TupleElement<X> tupleElement) {
+            return get(tupleElement.getAlias(), tupleElement.getJavaType());
+        }
+
+        @Override
+        public <X> X get(String s, Class<X> type) {
+            try {
+                return delegate.get(s, type);
+            } catch (IllegalArgumentException original) {
+                try {
+                    return delegate.get(fallbackNameTransformer.apply(s), type);
+                } catch (IllegalArgumentException next) {
+                    original.addSuppressed(next);
+                    throw original;
+                }
+            }
+        }
+
+        @Override
+        public Object get(String s) {
+            try {
+                return delegate.get(s);
+            } catch (IllegalArgumentException original) {
+                try {
+                    return delegate.get(fallbackNameTransformer.apply(s));
+                } catch (IllegalArgumentException next) {
+                    original.addSuppressed(next);
+                    throw original;
+                }
+            }
+        }
+
+        @Override
+        public <X> X get(int i, Class<X> aClass) {
+            return delegate.get(i, aClass);
+        }
+
+        @Override
+        public Object get(int i) {
+            return delegate.get(i);
+        }
+
+        @Override
+        public Object[] toArray() {
+            return delegate.toArray();
+        }
+
+        @Override
+        public List<TupleElement<?>> getElements() {
+            return delegate.getElements();
         }
 
     }

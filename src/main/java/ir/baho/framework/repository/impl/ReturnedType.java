@@ -1,5 +1,6 @@
 package ir.baho.framework.repository.impl;
 
+import lombok.Getter;
 import org.springframework.data.mapping.Parameter;
 import org.springframework.data.mapping.PreferredConstructor;
 import org.springframework.data.mapping.model.PreferredConstructorDiscoverer;
@@ -30,7 +31,7 @@ public abstract class ReturnedType {
         this.domainType = domainType;
     }
 
-    static ReturnedType of(Class<?> returnedType, Class<?> domainType, ProjectionFactory factory) {
+    public static ReturnedType of(Class<?> returnedType, Class<?> domainType, ProjectionFactory factory) {
         Assert.notNull(returnedType, "Returned type must not be null");
         Assert.notNull(domainType, "Domain type must not be null");
         Assert.notNull(factory, "ProjectionFactory must not be null");
@@ -58,6 +59,7 @@ public abstract class ReturnedType {
 
         private final ProjectionInformation information;
         private final Class<?> domainType;
+        private final List<String> inputProperties;
 
         public ReturnedInterface(ProjectionInformation information, Class<?> domainType) {
             super(domainType);
@@ -66,6 +68,19 @@ public abstract class ReturnedType {
 
             this.information = information;
             this.domainType = domainType;
+            this.inputProperties = detectInputProperties(information);
+        }
+
+        private static List<String> detectInputProperties(ProjectionInformation information) {
+            List<String> properties = new ArrayList<>();
+
+            for (PropertyDescriptor descriptor : information.getInputProperties()) {
+                if (!properties.contains(descriptor.getName())) {
+                    properties.add(descriptor.getName());
+                }
+            }
+
+            return Collections.unmodifiableList(properties);
         }
 
         @Override
@@ -80,16 +95,9 @@ public abstract class ReturnedType {
 
         @Override
         public List<String> getInputProperties() {
-            List<String> properties = new ArrayList<>();
-
-            for (PropertyDescriptor descriptor : information.getInputProperties()) {
-                if (!properties.contains(descriptor.getName())) {
-                    properties.add(descriptor.getName());
-                }
-            }
-
-            return properties;
+            return inputProperties;
         }
+
     }
 
     private static final class ReturnedClass extends ReturnedType {
@@ -97,9 +105,11 @@ public abstract class ReturnedType {
         private static final Set<Class<?>> VOID_TYPES = new HashSet<>(Arrays.asList(Void.class, void.class));
 
         private final Class<?> type;
+        private final boolean isDto;
         private final List<String> inputProperties;
 
         public ReturnedClass(Class<?> returnedType, Class<?> domainType) {
+
             super(domainType);
 
             Assert.notNull(returnedType, "Returned type must not be null");
@@ -107,6 +117,14 @@ public abstract class ReturnedType {
             Assert.isTrue(!returnedType.isInterface(), "Returned type must not be an interface");
 
             this.type = returnedType;
+            this.isDto = !Object.class.equals(type) &&
+                    !type.isEnum() &&
+                    !isDomainSubtype() &&
+                    !isPrimitiveOrWrapper() &&
+                    !Number.class.isAssignableFrom(type) &&
+                    !VOID_TYPES.contains(type) &&
+                    !type.getPackage().getName().startsWith("java.");
+
             this.inputProperties = detectConstructorParameterNames(returnedType);
         }
 
@@ -142,17 +160,11 @@ public abstract class ReturnedType {
                 properties.add(parameter.getName());
             }
 
-            return properties;
+            return Collections.unmodifiableList(properties);
         }
 
         private boolean isDto() {
-            return !Object.class.equals(type) &&
-                    !type.isEnum() &&
-                    !isDomainSubtype() &&
-                    !isPrimitiveOrWrapper() &&
-                    !Number.class.isAssignableFrom(type) &&
-                    !VOID_TYPES.contains(type) &&
-                    !type.getPackage().getName().startsWith("java.");
+            return isDto;
         }
 
         private boolean isDomainSubtype() {
@@ -164,6 +176,7 @@ public abstract class ReturnedType {
         }
     }
 
+    @Getter
     private static final class CacheKey {
 
         private final Class<?> returnedType;
@@ -178,18 +191,6 @@ public abstract class ReturnedType {
 
         public static CacheKey of(Class<?> returnedType, Class<?> domainType, int projectionFactoryHashCode) {
             return new CacheKey(returnedType, domainType, projectionFactoryHashCode);
-        }
-
-        public Class<?> getReturnedType() {
-            return this.returnedType;
-        }
-
-        public Class<?> getDomainType() {
-            return this.domainType;
-        }
-
-        public int getProjectionFactoryHashCode() {
-            return this.projectionFactoryHashCode;
         }
 
         @Override

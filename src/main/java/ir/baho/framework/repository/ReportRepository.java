@@ -24,7 +24,6 @@ import ir.baho.framework.metadata.report.ReportType;
 import ir.baho.framework.metadata.report.Style;
 import ir.baho.framework.metadata.report.Subtotal;
 import ir.baho.framework.metadata.report.TextFormat;
-import ir.baho.framework.repository.impl.jasper.JasperDocxExporter;
 import ir.baho.framework.repository.impl.jasper.JasperOdsExporter;
 import ir.baho.framework.repository.impl.jasper.JasperOdtExporter;
 import ir.baho.framework.repository.impl.jasper.JasperPptxExporter;
@@ -163,7 +162,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                 xlsxExporter.exportReport();
             }
             case docx -> {
-                JRDocxExporter docxExporter = new JasperDocxExporter(rtl);
+                JRDocxExporter docxExporter = new JRDocxExporter();
                 docxExporter.setExporterInput(new SimpleExporterInput(print));
                 docxExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
                 docxExporter.exportReport();

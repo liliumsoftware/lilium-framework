@@ -1,5 +1,7 @@
 package ir.baho.framework.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoWriteException;
 import ir.baho.framework.exception.ConflictException;
 import ir.baho.framework.exception.DependencyException;
@@ -15,7 +17,6 @@ import ir.baho.framework.exception.NotModifiedException;
 import ir.baho.framework.exception.ObjectError;
 import ir.baho.framework.exception.PreconditionFailedException;
 import ir.baho.framework.exception.ServiceUnavailableException;
-import ir.baho.framework.exception.TransparentClientException;
 import ir.baho.framework.i18n.MessageResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
@@ -58,11 +60,16 @@ import java.util.stream.Stream;
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private final MessageResource messageResource;
+    private final ObjectMapper objectMapper;
 
     @ResponseBody
-    @ExceptionHandler(TransparentClientException.class)
-    public ResponseEntity<String> handleTransparentClientException(TransparentClientException e) {
-        return ResponseEntity.status(e.getStatus()).body(e.getMessage());
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<?> handleHttpClientErrorException(HttpClientErrorException e) {
+        try {
+            return ResponseEntity.status(e.getStatusCode()).body(objectMapper.readTree(e.getResponseBodyAsString()));
+        } catch (JsonProcessingException ex) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        }
     }
 
     @ResponseBody

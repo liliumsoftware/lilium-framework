@@ -115,7 +115,11 @@ public class JacksonConfig {
                                             }
                                         }
                                     }
-                                    return EnumConverter.getEnum(resource, options.getEnumType(), (Class<Enum>) beanDesc.getBeanClass(), jsonValue);
+                                    if (RequestContextHolder.getRequestAttributes() != null) {
+                                        return EnumConverter.getEnum(resource, options.getEnumType(), (Class<Enum>) beanDesc.getBeanClass(), jsonValue);
+                                    } else {
+                                        return Enum.valueOf((Class<Enum>) enumClass, parser.getText());
+                                    }
                                 }
                             };
                         }

@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 
 public interface ProjectionMapper<E, D extends BaseIdDto<D, ?>> {
 
-    D toDto(E dto);
+    D toDto(E entity);
 
-    List<D> toDto(List<E> dto);
+    List<D> toDto(List<E> entity);
 
     default <T extends IdProjection<ID>, ID extends Serializable & Comparable<ID>, S extends Serializable & Comparable<S>>
     List<IdValue<ID, S>> toIdValues(List<T> values, Function<T, S> value) {

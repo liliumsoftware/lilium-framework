@@ -416,7 +416,6 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         if (predicate != null) {
             query.where(predicate);
         }
-
     }
 
     protected <S> TypedQuery<S> applyRepositoryMethodMetadata(TypedQuery<S> query) {

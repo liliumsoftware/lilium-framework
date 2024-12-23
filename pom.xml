@@ -18,23 +18,28 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.source.version>3.3.1</maven.source.version>
-        <maven.javadoc.version>3.10.1</maven.javadoc.version>
-        <maven.site.version>3.20.0</maven.site.version>
+        <maven.javadoc.version>3.11.2</maven.javadoc.version>
+        <maven.site.version>3.21.0</maven.site.version>
         <maven.release.version>3.1.1</maven.release.version>
-        <spring-boot.version>3.3.4</spring-boot.version>
-        <spring-cloud.version>2023.0.3</spring-cloud.version>
-        <javers.version>7.6.2</javers.version>
+        <spring-boot.version>3.4.1</spring-boot.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <javers.version>7.7.0</javers.version>
         <dynamicreports.version>6.20.1</dynamicreports.version>
-        <jasperreports.version>6.21.3</jasperreports.version>
+        <jasperreports.version>6.21.4</jasperreports.version>
         <jaxb.version>4.0.5</jaxb.version>
         <poi.version>5.3.0</poi.version>
         <commons.csv.version>1.12.0</commons.csv.version>
-        <commons.io.version>2.17.0</commons.io.version>
-        <icu4j.version>75.1</icu4j.version>
-        <mapstruct.version>1.6.2</mapstruct.version>
+        <commons.io.version>2.18.0</commons.io.version>
+        <icu4j.version>76.1</icu4j.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
@@ -83,16 +88,6 @@
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-openfeign-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-core</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

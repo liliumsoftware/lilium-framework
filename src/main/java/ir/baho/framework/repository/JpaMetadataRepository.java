@@ -17,6 +17,14 @@ public interface JpaMetadataRepository<E extends BaseEntitySimple<?, ID>, ID ext
         return findById(id).orElseThrow(NotFoundException::new);
     }
 
+    default void deleteOne(ID id) {
+        if (existsById(id)) {
+            deleteById(id);
+        } else {
+            throw new NotFoundException();
+        }
+    }
+
     Optional<EntityMetadataProjection<ID>> findMetadataProjectedById(ID id);
 
     default EntityMetadata<ID> findMetadata(ID id) {
