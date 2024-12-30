@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -29,6 +30,15 @@ public abstract class JpaBaseCustomRepository {
         return getPage(criteriaQuery, total, pageable);
     }
 
+    protected <E, P> List<P> getList(Root<E> root, CriteriaQuery<P> criteriaQuery, CriteriaBuilder criteriaBuilder,
+                                     Sort sort, Specification<E> specification) {
+        criteriaQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
+        if (sort != null && sort.isSorted()) {
+            criteriaQuery.orderBy(QueryUtils.toOrders(sort, root, criteriaBuilder));
+        }
+        return entityManager.createQuery(criteriaQuery).getResultList();
+    }
+
     protected <E, P> Page<P> getPage(Root<E> root, CriteriaQuery<P> criteriaQuery, CriteriaBuilder criteriaBuilder,
                                      Pageable pageable, Specification<E> specification, SpecificationConsumer<E, P> consumer) {
         long total = getTotal(root, criteriaQuery, criteriaBuilder, specification);
@@ -38,6 +48,16 @@ public abstract class JpaBaseCustomRepository {
             criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
         }
         return getPage(criteriaQuery, total, pageable);
+    }
+
+    protected <E, P> List<P> getList(Root<E> root, CriteriaQuery<P> criteriaQuery, CriteriaBuilder criteriaBuilder,
+                                     Sort sort, Specification<E> specification, SpecificationConsumer<E, P> consumer) {
+        criteriaQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
+        consumer.accept(root, criteriaQuery, criteriaBuilder);
+        if (sort != null && sort.isSorted()) {
+            criteriaQuery.orderBy(QueryUtils.toOrders(sort, root, criteriaBuilder));
+        }
+        return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
     protected <E> Page<E> getPage(CriteriaQuery<E> criteriaQuery, long total, Pageable pageable) {

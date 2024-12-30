@@ -55,6 +55,9 @@ public class EnumConverter<E extends Enum<E>> extends StringConverter<E> {
                 case TEXT -> {
                     Optional<E> optionalEnum = EnumSet.allOf(type).stream().filter(e -> value
                             .equals(messageResource.getMessageOrDefault(EnumConverter.getPrefix(e) + "." + e.name(), e.name()))).findAny();
+                    if (optionalEnum.isEmpty() && EnumValue.class.isAssignableFrom(type)) {
+                        optionalEnum = EnumSet.allOf(type).stream().filter(e -> value.equals(String.valueOf(((EnumValue<?>) e).getValue()))).findAny();
+                    }
                     return optionalEnum.orElseGet(() -> EnumSet.allOf(type).stream().filter(e -> value.equals(e.name()))
                             .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value)));
                 }
