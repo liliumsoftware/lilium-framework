@@ -22,7 +22,7 @@ public abstract class JpaBaseCustomRepository {
 
     protected <E, P> Page<P> getPage(Root<E> root, CriteriaQuery<P> criteriaQuery, CriteriaBuilder criteriaBuilder,
                                      Pageable pageable, Specification<E> specification) {
-        long total = getTotal(root, criteriaQuery, criteriaBuilder, specification);
+        long total = getTotal(root, criteriaBuilder, specification);
         criteriaQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
         if (pageable.getSort().isSorted()) {
             criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
@@ -41,7 +41,7 @@ public abstract class JpaBaseCustomRepository {
 
     protected <E, P> Page<P> getPage(Root<E> root, CriteriaQuery<P> criteriaQuery, CriteriaBuilder criteriaBuilder,
                                      Pageable pageable, Specification<E> specification, SpecificationConsumer<E, P> consumer) {
-        long total = getTotal(root, criteriaQuery, criteriaBuilder, specification);
+        long total = getTotal(root, criteriaBuilder, specification);
         criteriaQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
         consumer.accept(root, criteriaQuery, criteriaBuilder);
         if (pageable.getSort().isSorted()) {
@@ -68,10 +68,10 @@ public abstract class JpaBaseCustomRepository {
     }
 
     @SuppressWarnings("unchecked")
-    protected <E, P> long getTotal(Root<E> root, CriteriaQuery<P> criteriaQuery, CriteriaBuilder criteriaBuilder, Specification<E> specification) {
+    protected <E, P> long getTotal(Root<E> root, CriteriaBuilder criteriaBuilder, Specification<E> specification) {
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<E> countRoot = (Root<E>) countQuery.from(root.getJavaType());
-        countQuery.where(specification.toPredicate(countRoot, criteriaQuery, criteriaBuilder));
+        countQuery.where(specification.toPredicate(countRoot, countQuery, criteriaBuilder));
         countQuery.select(criteriaBuilder.countDistinct(countRoot));
         return executeCountQuery(entityManager.createQuery(countQuery));
     }
