@@ -7,16 +7,17 @@ import lombok.SneakyThrows;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Transient;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-public abstract class BaseSubDocument<E extends BaseSubDocument<E>> implements Entity<E, String> {
+public abstract class BaseSubDocument<E extends BaseSubDocument<E, ID>, ID extends Serializable & Comparable<ID>> implements Entity<E, ID> {
 
     @Override
-    public void setId(String id) {
+    public void setId(ID id) {
     }
 
     @SneakyThrows
@@ -34,7 +35,7 @@ public abstract class BaseSubDocument<E extends BaseSubDocument<E>> implements E
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BaseSubDocument<?> that)) return false;
+        if (!(o instanceof BaseSubDocument<?, ?> that)) return false;
         return Objects.equals(getId(), that.getId());
     }
 

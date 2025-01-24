@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -46,8 +49,26 @@ public class Metadata implements SortMetadata, Serializable {
         this.sort = sort;
     }
 
+    public void addSort(Sort... sort) {
+        if (sort == null || sort.length == 0) {
+            return;
+        }
+        List<Sort> sorts = this.sort == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(this.sort));
+        sorts.addAll(Arrays.asList(sort));
+        this.sort = sorts.toArray(Sort[]::new);
+    }
+
     public void setSearch(Search... search) {
         this.search = search;
+    }
+
+    public void addSearch(Search... search) {
+        if (search == null || search.length == 0) {
+            return;
+        }
+        List<Search> searches = this.search == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(this.search));
+        searches.addAll(Arrays.asList(search));
+        this.search = searches.toArray(Search[]::new);
     }
 
     public void converted() {

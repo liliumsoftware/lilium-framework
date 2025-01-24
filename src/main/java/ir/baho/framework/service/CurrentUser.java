@@ -50,6 +50,10 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
 
     List<String> permissions();
 
+    default <V> V getValue(String name) {
+        return null;
+    }
+
     @Override
     default Locale getLocale() {
         return locale();
@@ -65,7 +69,7 @@ public interface CurrentUser extends TimeZoneAwareLocaleContext {
         Locale locale = locale();
         if (locale != null) {
             String lang = locale.getLanguage();
-            if (lang != null && !lang.isBlank()) {
+            if (!lang.isBlank()) {
                 return lang.startsWith("fa") || lang.startsWith("ar");
             }
         }

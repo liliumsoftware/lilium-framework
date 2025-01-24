@@ -147,6 +147,13 @@ public class DefaultCurrentUser implements CurrentUser {
                 .flatMap(account -> account.values().stream()).flatMap(Collection::stream).toList()).orElse(List.of());
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <V> V getValue(String name) {
+        Map<String, ?> value = getToken();
+        return (V) Optional.ofNullable(value).map(v -> v.get(name)).orElse(null);
+    }
+
     private String getHeaderValue(String name) {
         HttpServletRequest request = getRequest();
         if (request != null) {

@@ -3,8 +3,10 @@ package ir.baho.framework.metadata;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @NoArgsConstructor
 public class ProjectionMetadata extends Metadata {
 
@@ -22,10 +24,6 @@ public class ProjectionMetadata extends Metadata {
 
     public ProjectionMetadata(@Valid Search... search) {
         super(search);
-    }
-
-    public String[] getField() {
-        return field;
     }
 
     public void setField(String... field) {
