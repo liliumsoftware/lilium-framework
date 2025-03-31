@@ -17,6 +17,11 @@ import java.util.Objects;
 public abstract class BaseSubDocument<E extends BaseSubDocument<E, ID>, ID extends Serializable & Comparable<ID>> implements Entity<E, ID> {
 
     @Override
+    public ID getId() {
+        return null;
+    }
+
+    @Override
     public void setId(ID id) {
     }
 

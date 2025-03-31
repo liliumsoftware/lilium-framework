@@ -13,12 +13,14 @@ import ir.baho.framework.repository.specification.SimpleSelections;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+@NoRepositoryBean
 public interface MongoCriteriaRepository<E extends Entity<?, ID>, ID extends Serializable & Comparable<ID>>
         extends ReportRepository<E, ID>, MongoRepository<E, ID> {
 

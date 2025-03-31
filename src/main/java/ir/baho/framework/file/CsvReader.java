@@ -27,7 +27,7 @@ public abstract class CsvReader<T> implements Closeable {
 
     @SneakyThrows
     public CsvReader(InputStream inputStream, char delimiter, boolean header) {
-        this.parser = CSVFormat.EXCEL.builder().setDelimiter(delimiter).build().parse(new InputStreamReader(inputStream));
+        this.parser = CSVFormat.EXCEL.builder().setDelimiter(delimiter).get().parse(new InputStreamReader(inputStream));
         this.header = header;
     }
 

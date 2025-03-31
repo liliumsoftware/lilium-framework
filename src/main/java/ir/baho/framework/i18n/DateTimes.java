@@ -19,6 +19,7 @@ import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.i18n.LocaleContextHolder;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
@@ -615,16 +616,16 @@ public class DateTimes {
             negative = true;
         }
         String[] parts = duration.split(":");
+        long value = new BigDecimal(parts[0]).longValue();
         Duration d = switch (durationType) {
-            case MILLIS -> Duration.ofMillis((Integer.parseInt(duration)));
-            case HOUR -> Duration.ofHours((Integer.parseInt(parts[0])));
-            case MINUTE -> Duration.ofMinutes((Integer.parseInt(parts[0])));
-            case SECOND -> Duration.ofSeconds((Integer.parseInt(parts[0])));
-            case HOUR_MINUTE -> Duration.ofSeconds((Integer.parseInt(parts[0]) * 3600L)
-                    + (Integer.parseInt(parts[1]) * 60L));
-            case MINUTE_SECOND -> Duration.ofSeconds((Integer.parseInt(parts[0]) * 60L) + (Integer.parseInt(parts[1])));
-            default -> Duration.ofSeconds((Integer.parseInt(parts[0]) * 3600L)
-                    + (Integer.parseInt(parts[1]) * 60L) + (Integer.parseInt(parts[2])));
+            case MILLIS -> Duration.ofMillis(value);
+            case HOUR -> Duration.ofHours(value);
+            case MINUTE -> Duration.ofMinutes(value);
+            case SECOND -> Duration.ofSeconds(value);
+            case HOUR_MINUTE -> Duration.ofSeconds((value * 3600L) + (new BigDecimal(parts[1]).longValue() * 60L));
+            case MINUTE_SECOND -> Duration.ofSeconds((value * 60L) + (new BigDecimal(parts[1]).longValue()));
+            default -> Duration.ofSeconds((value * 3600L)
+                    + (new BigDecimal(parts[1]).longValue() * 60L) + (new BigDecimal(parts[2]).longValue()));
         };
         return negative ? d.negated() : d;
     }

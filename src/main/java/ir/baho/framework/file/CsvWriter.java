@@ -29,7 +29,7 @@ public abstract class CsvWriter<T> extends BaseWriter {
         this.header = header;
         Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
         writer.write('\ufeff');
-        this.printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(delimiter).build());
+        this.printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(delimiter).get());
     }
 
     public CsvWriter(MessageResource messageResource,

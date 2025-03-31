@@ -82,6 +82,7 @@ import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
+import org.springframework.data.repository.NoRepositoryBean;
 
 import java.awt.Color;
 import java.io.InputStream;
@@ -102,6 +103,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@NoRepositoryBean
 public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
 
     int VIRTUALIZER_MAX_SIZE = 300;

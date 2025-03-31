@@ -12,6 +12,7 @@ import ir.baho.framework.metadata.SortMetadata;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@NoRepositoryBean
 public interface BaseRepository<E, ID> extends Repository<E, ID> {
 
     default void convert(Metadata metadata, Map<String, Class<?>> paths, Map<String, Constraint[]> constraints,

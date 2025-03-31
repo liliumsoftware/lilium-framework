@@ -4,6 +4,7 @@ import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.repository.impl.JpaRepositoryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.repository.Repository;
@@ -22,14 +23,11 @@ public class JpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID> extend
     @Autowired
     private List<StringConverter<?>> converters;
 
+    @Setter
     private Class<?> revisionEntityClass;
 
     public JpaRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
         super(repositoryInterface);
-    }
-
-    public void setRevisionEntityClass(Class<?> revisionEntityClass) {
-        this.revisionEntityClass = revisionEntityClass;
     }
 
     @Override
