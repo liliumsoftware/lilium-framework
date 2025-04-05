@@ -64,8 +64,9 @@ public class EnumConverter<E extends Enum<E>> extends StringConverter<E> {
             }
         }
         if (EnumValue.class.isAssignableFrom(type)) {
-            return EnumSet.allOf(type).stream().filter(e -> value.equals(String.valueOf(((EnumValue<?>) e).getValue())))
-                    .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));
+            Optional<E> optionalEnum = EnumSet.allOf(type).stream().filter(e -> value.equals(String.valueOf(((EnumValue<?>) e).getValue()))).findAny();
+            return optionalEnum.orElseGet(() -> EnumSet.allOf(type).stream().filter(e -> value.equals(e.name()))
+                    .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value)));
         } else {
             return EnumSet.allOf(type).stream().filter(e -> value.equals(e.name()))
                     .findAny().orElseThrow(() -> new IllegalArgumentException("No item found for value: " + value));

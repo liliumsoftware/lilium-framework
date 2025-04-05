@@ -23,13 +23,13 @@ public abstract class MongoBaseCustomRepository {
                 () -> mongoTemplate.count(query.limit(-1).skip(-1), clas));
     }
 
-    protected <E, P> Page<E> getPage(Class<E> clas, Class<P> projection, List<AggregationOperation> aggregationOperations, Pageable pageable) {
+    protected <E, P> Page<P> getPage(Class<E> clas, Class<P> projection, List<AggregationOperation> aggregationOperations, Pageable pageable) {
         aggregationOperations = new ArrayList<>(aggregationOperations);
         List<AggregationOperation> countAggregationOperations = new ArrayList<>(aggregationOperations);
         countAggregationOperations.add(Aggregation.count().as("count"));
-        aggregationOperations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
+        aggregationOperations.add(Aggregation.skip(pageable.getOffset()));
         aggregationOperations.add(Aggregation.limit(pageable.getPageSize()));
-        return PageableExecutionUtils.getPage(mongoTemplate.aggregate(Aggregation.newAggregation(aggregationOperations), projection, clas).getMappedResults(),
+        return PageableExecutionUtils.getPage(mongoTemplate.aggregate(Aggregation.newAggregation(aggregationOperations), clas, projection).getMappedResults(),
                 pageable, () -> mongoTemplate.aggregate(Aggregation.newAggregation(countAggregationOperations), projection, BasicDBObject.class).getUniqueMappedResult().getLong("count"));
     }
 
