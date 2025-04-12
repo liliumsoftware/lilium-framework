@@ -28,8 +28,8 @@
         <dynamicreports.version>6.20.1</dynamicreports.version>
         <jasperreports.version>6.21.4</jasperreports.version>
         <jaxb.version>4.0.5</jaxb.version>
-        <poi.version>5.4.0</poi.version>
-        <commons.csv.version>1.13.0</commons.csv.version>
+        <poi.version>5.4.1</poi.version>
+        <commons.csv.version>1.14.0</commons.csv.version>
         <icu4j.version>77.1</icu4j.version>
         <mapstruct.version>1.6.3</mapstruct.version>
     </properties>
@@ -118,10 +118,6 @@
                 <exclusion>
                     <groupId>net.sf.barcode4j</groupId>
                     <artifactId>barcode4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-bridge</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

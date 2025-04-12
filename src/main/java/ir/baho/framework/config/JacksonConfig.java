@@ -115,11 +115,7 @@ public class JacksonConfig {
                                             }
                                         }
                                     }
-                                    if (RequestContextHolder.getRequestAttributes() != null) {
-                                        return EnumConverter.getEnum(resource, options.getEnumType(), (Class<Enum>) beanDesc.getBeanClass(), jsonValue);
-                                    } else {
-                                        return Enum.valueOf((Class<Enum>) enumClass, parser.getText());
-                                    }
+                                    return EnumConverter.getEnum(resource, options.getEnumType(), (Class<Enum>) beanDesc.getBeanClass(), jsonValue);
                                 }
                             };
                         }
@@ -193,11 +189,7 @@ public class JacksonConfig {
                                     }
                                 }
                             }
-                            if (RequestContextHolder.getRequestAttributes() != null) {
-                                return EnumConverter.getEnum(messageResource, currentUser.enumType(), (Class<Enum>) beanDesc.getBeanClass(), parser.getText());
-                            } else {
-                                return Enum.valueOf((Class<Enum>) enumClass, parser.getText());
-                            }
+                            return EnumConverter.getEnum(messageResource, currentUser.enumType(), (Class<Enum>) beanDesc.getBeanClass(), parser.getText());
                         }
                     };
                 }
