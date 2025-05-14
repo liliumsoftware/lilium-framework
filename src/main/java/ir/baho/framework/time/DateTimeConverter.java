@@ -22,12 +22,32 @@ public class DateTimeConverter extends StringConverter<LocalDateTime> {
 
     @SneakyThrows
     public LocalDateTime convert(String source) {
-        return dateTimes.parseDateTime(source, currentUser.dateTimeFormat());
+        return dateTimes.parseDateTime(source, getFormat(), getCalendarType());
     }
 
     @Override
     public String print(LocalDateTime value, Locale locale) {
-        return Strings.getText(dateTimes.format(value, currentUser.dateTimeFormat()), locale);
+        return Strings.getText(dateTimes.format(value, getFormat(), getCalendarType()), locale);
+    }
+
+    private String getFormat() {
+        String format;
+        if (currentUser.dateTimeFormat() == null && getCurrentUser() != null) {
+            format = getCurrentUser().dateTimeFormat();
+        } else {
+            format = currentUser.dateTimeFormat();
+        }
+        return format;
+    }
+
+    private CalendarType getCalendarType() {
+        CalendarType type;
+        if (currentUser.calendarType() == null && getCurrentUser() != null) {
+            type = getCurrentUser().calendarType();
+        } else {
+            type = currentUser.calendarType();
+        }
+        return type;
     }
 
 }

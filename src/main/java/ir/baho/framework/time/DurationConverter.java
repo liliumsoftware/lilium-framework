@@ -21,12 +21,22 @@ public class DurationConverter extends StringConverter<Duration> {
 
     @Override
     public Duration convert(String source) {
-        return dateTimes.parseDuration(source, currentUser.durationType());
+        return dateTimes.parseDuration(source, getDurationType());
     }
 
     @Override
     public String print(Duration value, Locale locale) {
-        return Strings.getText(dateTimes.format(value, currentUser.durationType()), locale);
+        return Strings.getText(dateTimes.format(value, getDurationType()), locale);
+    }
+
+    private DurationType getDurationType() {
+        DurationType type;
+        if (currentUser.durationType() == null && getCurrentUser() != null) {
+            type = getCurrentUser().durationType();
+        } else {
+            type = currentUser.durationType();
+        }
+        return type;
     }
 
 }

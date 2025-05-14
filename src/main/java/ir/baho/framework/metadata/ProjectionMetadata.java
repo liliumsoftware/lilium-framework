@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @NoArgsConstructor
 public class ProjectionMetadata extends Metadata {
@@ -28,6 +30,12 @@ public class ProjectionMetadata extends Metadata {
 
     public void setField(String... field) {
         this.field = field;
+    }
+
+    @Override
+    public void renameField(String from, String to) {
+        super.renameField(from, to);
+        Arrays.setAll(field, i -> field[i].equals(from) ? to : field[i]);
     }
 
 }

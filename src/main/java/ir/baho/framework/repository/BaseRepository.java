@@ -44,6 +44,7 @@ public interface BaseRepository<E, ID> extends Repository<E, ID> {
                 StringConverter<? extends Comparable<?>> converter = converters.stream()
                         .filter(c -> c.isSupported(field))
                         .findFirst().orElseThrow(() -> new MetadataConvertException(domain, search.getField(), search.getValue()));
+                converter.setCurrentUser(metadata.getCurrentUser());
                 if (search.getConstraint() != Constraint.IS_NULL && search.getConstraint() != Constraint.IS_NOT_NULL) {
                     if (search.getConstraint() == Constraint.BETWEEN || search.getConstraint() == Constraint.NOT_BETWEEN) {
                         search.setValue(converter.convert(String.valueOf(search.getValue())));

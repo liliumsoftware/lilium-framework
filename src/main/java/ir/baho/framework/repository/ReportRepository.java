@@ -463,7 +463,7 @@ public interface ReportRepository<E, ID> extends BaseRepository<E, ID> {
                     }
                 }
                 if (reportColumn.getHeader() == null) {
-                    reportColumn.setHeader(prefix + messageResource.getMessageOrDefault(name, ""));
+                    reportColumn.setHeader(prefix + messageResource.getMessageOrDefault(name, field));
                 } else {
                     reportColumn.setHeader(prefix + reportColumn.getHeader());
                 }

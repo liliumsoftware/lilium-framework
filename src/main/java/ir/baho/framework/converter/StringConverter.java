@@ -1,7 +1,10 @@
 package ir.baho.framework.converter;
 
 import ir.baho.framework.i18n.Strings;
+import ir.baho.framework.service.CurrentUser;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.sf.dynamicreports.report.base.expression.AbstractValueFormatter;
 import net.sf.dynamicreports.report.definition.ReportParameters;
 import org.springframework.core.convert.converter.Converter;
@@ -12,9 +15,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 @NoArgsConstructor
+@Getter
+@Setter
 public abstract class StringConverter<E> extends AbstractValueFormatter<String, Object> implements Converter<String, E>, Formatter<E> {
 
     public static final String DIGITS_UNICODE = "DIGITS_UNICODE";
+
+    private CurrentUser currentUser;
 
     public StringConverter(String name) {
         super(name);

@@ -22,13 +22,32 @@ public class DateConverter extends StringConverter<LocalDate> {
 
     @SneakyThrows
     public LocalDate convert(String source) {
-        String format = currentUser.dateFormat();
-        return dateTimes.parseDate(source, format);
+        return dateTimes.parseDate(source, getFormat(), getCalendarType());
     }
 
     @Override
     public String print(LocalDate value, Locale locale) {
-        return Strings.getText(dateTimes.format(value, currentUser.dateFormat()), locale);
+        return Strings.getText(dateTimes.format(value, getFormat(), getCalendarType()), locale);
+    }
+
+    private String getFormat() {
+        String format;
+        if (currentUser.dateFormat() == null && getCurrentUser() != null) {
+            format = getCurrentUser().dateFormat();
+        } else {
+            format = currentUser.dateFormat();
+        }
+        return format;
+    }
+
+    private CalendarType getCalendarType() {
+        CalendarType type;
+        if (currentUser.calendarType() == null && getCurrentUser() != null) {
+            type = getCurrentUser().calendarType();
+        } else {
+            type = currentUser.calendarType();
+        }
+        return type;
     }
 
 }

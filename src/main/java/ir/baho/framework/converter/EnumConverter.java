@@ -79,7 +79,13 @@ public class EnumConverter<E extends Enum<E>> extends StringConverter<E> {
         if (source.isBlank() || source.equals("null")) {
             return null;
         }
-        return getEnum(messageResource, currentUser.enumType(), (Class<E>) getType(), source);
+        EnumType type;
+        if (currentUser.enumType() == null && getCurrentUser() != null) {
+            type = getCurrentUser().enumType();
+        } else {
+            type = currentUser.enumType();
+        }
+        return getEnum(messageResource, type, (Class<E>) getType(), source);
     }
 
     @Override
