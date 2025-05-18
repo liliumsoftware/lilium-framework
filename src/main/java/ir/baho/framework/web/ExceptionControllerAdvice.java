@@ -51,6 +51,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @AutoConfiguration
@@ -183,6 +184,17 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PreconditionFailedException.class)
     public HttpError handlePreconditionFailedException(PreconditionFailedException e) {
         return new HttpError(HttpStatus.PRECONDITION_FAILED, messageResource.getMessage("entity.current.version", e.getVersion()));
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public HttpError handleConstraintViolationException(jakarta.validation.ConstraintViolationException e) {
+        return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), e.getConstraintViolations().stream()
+                .map(violation -> new FieldError(violation.getMessage(),
+                        violation.getRootBeanClass().getSimpleName(), violation.getPropertyPath().toString(),
+                        violation.getInvalidValue(), violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()))
+                .collect(Collectors.toList()));
     }
 
     @ResponseBody
