@@ -14,21 +14,21 @@ import java.util.Optional;
 public interface JpaMetadataRepository<E extends BaseEntitySimple<?, ID>, ID extends Serializable & Comparable<ID>> extends JpaRepository<E, ID> {
 
     default E findOne(ID id) {
-        return findById(id).orElseThrow(NotFoundException::new);
+        return findById(id).orElseThrow(() -> new NotFoundException("FindOne: " + id));
     }
 
     default void deleteOne(ID id) {
         if (existsById(id)) {
             deleteById(id);
         } else {
-            throw new NotFoundException();
+            throw new NotFoundException("DeleteOne: " + id);
         }
     }
 
     Optional<EntityMetadataProjection<ID>> findMetadataProjectedById(ID id);
 
     default EntityMetadata<ID> findMetadata(ID id) {
-        EntityMetadataProjection<ID> entityMetadata = findMetadataProjectedById(id).orElseThrow(NotFoundException::new);
+        EntityMetadataProjection<ID> entityMetadata = findMetadataProjectedById(id).orElseThrow(() -> new NotFoundException("FindMetadata: " + id));
         return new EntityMetadata<>(entityMetadata.getId(), entityMetadata.getLastModifiedDate(), entityMetadata.getVersion());
     }
 
