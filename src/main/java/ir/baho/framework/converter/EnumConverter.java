@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 @NoArgsConstructor
@@ -94,7 +95,8 @@ public class EnumConverter<E extends Enum<E>> extends StringConverter<E> {
         if (e == null) {
             return null;
         }
-        return print(e, reportParameters.getLocale());
+        Locale locale = Objects.equals(reportParameters.getParameterValue(DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
+        return print(e, locale);
     }
 
     @Override

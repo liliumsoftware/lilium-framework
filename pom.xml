@@ -21,8 +21,8 @@
         <maven.javadoc.version>3.11.2</maven.javadoc.version>
         <maven.site.version>3.21.0</maven.site.version>
         <maven.release.version>3.1.1</maven.release.version>
-        <spring-boot.version>3.4.4</spring-boot.version>
-        <spring-cloud.version>2024.0.1</spring-cloud.version>
+        <spring-boot.version>3.5.0</spring-boot.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
         <hibernate.search.version>7.2.3.Final</hibernate.search.version>
         <javers.version>7.8.0</javers.version>
         <dynamicreports.version>6.20.1</dynamicreports.version>

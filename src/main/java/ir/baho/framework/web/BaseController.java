@@ -32,11 +32,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -236,13 +238,24 @@ public abstract class BaseController<C extends BaseController<C>> {
         return ResponseEntity.ok().headers(headers).body(stream);
     }
 
-    @SneakyThrows
+    protected byte[] partToBytes(MultipartFile multipart) {
+        try {
+            return multipart.getBytes();
+        } catch (IOException e) {
+            throw new MultipartException("Could not parse multipart file", e);
+        }
+    }
+
     protected <D extends BaseFileDto<D, ?>> D partToFile(MultipartFile multipart, D file) {
-        String name = multipart.getOriginalFilename() != null ? multipart.getOriginalFilename() : multipart.getName();
-        file.setName(URLDecoder.decode(name, StandardCharsets.UTF_8));
-        file.setSize((int) multipart.getSize());
-        file.setType(multipart.getContentType());
-        file.setValue(multipart.getBytes());
+        try {
+            String name = multipart.getOriginalFilename() != null ? multipart.getOriginalFilename() : multipart.getName();
+            file.setName(URLDecoder.decode(name, StandardCharsets.UTF_8));
+            file.setSize((int) multipart.getSize());
+            file.setType(multipart.getContentType());
+            file.setValue(multipart.getBytes());
+        } catch (IOException e) {
+            throw new MultipartException("Could not parse multipart file", e);
+        }
         return file;
     }
 
