@@ -44,29 +44,37 @@ public abstract class CsvReader<T> implements Closeable {
         List<T> list = new ArrayList<>();
         while (iterator.hasNext()) {
             CSVRecord currentRow = iterator.next();
-            list.add(this.readRow(currentRow));
+            T t = this.readRow(currentRow);
+            if (t != null) {
+                list.add(t);
+            }
         }
         return list;
     }
 
     protected T readRow(CSVRecord row) {
         T instance = this.create();
-        Iterator<String> iterator = row.iterator();
-        int i = -1;
-        while (iterator.hasNext()) {
-            String cell = iterator.next();
-            i++;
+        List<String> cells = row.stream().toList();
+        int skips = 0;
+        for (int i = 0; i < cells.size(); i++) {
+            String cell = cells.get(i);
             if (cell == null || cell.isBlank()) {
                 continue;
             }
-            this.read(i, cell, instance);
+            boolean read = this.read(i, cell, instance);
+            if (!read) {
+                skips++;
+            }
+        }
+        if (skips == cells.size()) {
+            return null;
         }
         return instance;
     }
 
     protected abstract T create();
 
-    protected abstract void read(int index, String cell, T obj);
+    protected abstract boolean read(int index, String cell, T obj);
 
     protected boolean readAsBoolean(String cell) {
         return Boolean.parseBoolean(cell);

@@ -29,11 +29,13 @@ import org.springframework.hateoas.server.SimpleRepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriUtils;
@@ -236,6 +238,14 @@ public abstract class BaseController<C extends BaseController<C>> {
         headers.setContentDisposition(contentDisposition);
         headers.setContentType(MediaType.parseMediaType(type));
         return ResponseEntity.ok().headers(headers).body(stream);
+    }
+
+    protected void checkFileSize(int maxSize, MultipartFile... multipart) {
+        for (MultipartFile file : multipart) {
+            if (file.getSize() > maxSize) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File too large: " + file.getOriginalFilename());
+            }
+        }
     }
 
     protected byte[] partToBytes(MultipartFile multipart) {
