@@ -191,24 +191,44 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
     @SneakyThrows
     @Override
     public JasperPrint report(StaticReportMetadata metadata, InputStream inputStream) {
-        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE));
-        metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
-        return JasperFillManager.fillReport(inputStream, metadata.getParams(), getDataSource(metadata.getQuery()));
+        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
+        try {
+            metadata.param(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+            metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
+            return JasperFillManager.fillReport(inputStream, metadata.getParams(), getDataSource(metadata.getQuery()));
+        } finally {
+            virtualizer.cleanup();
+        }
     }
 
     @SneakyThrows
     @Override
     public void save(Path path, JasperReportBuilder builder) {
-        JRSaver.saveObject(builder.toJasperPrint(), path.toFile());
+        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
+        Map<String, Object> parameters = builder.getJasperParameters();
+        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+        try {
+            JRSaver.saveObject(JasperFillManager.fillReport(builder.toJasperReport(), parameters, builder.getDataSource()), path.toFile());
+        } finally {
+            virtualizer.cleanup();
+        }
     }
 
-    @Override
     @SneakyThrows
+    @Override
     public void export(JasperReportBuilder builder, ExportType type, OutputStream outputStream) {
-        export(builder.toJasperPrint(), type, outputStream);
+        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
+        Map<String, Object> parameters = builder.getJasperParameters();
+        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+        try {
+            export(JasperFillManager.fillReport(builder.toJasperReport(), parameters, builder.getDataSource()), type, outputStream);
+        } finally {
+            virtualizer.cleanup();
+        }
     }
 
     protected JasperReportBuilder getJasperReportBuilder(ReportMetadata metadata, ReportDesign design, PredicateMongoSpecification specification, SimpleSelections selections) {
+        metadata.report();
         Map<String, Class<?>> fields = selections.apply();
         Query query = getQuery(metadata, specification).with(getSort(metadata));
         query.fields().include(getSelections(metadata.getField(), fields.keySet()));
@@ -217,12 +237,12 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
         return getDesign(metadata, design, messageResource, converters, fields,
                 entityInformation.getJavaType(), true)
                 .setReportName(metadata.getName())
-                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
                 .setLocale(metadata.getLocale())
                 .setDataSource(getDataSource(queryString));
     }
 
     protected JasperReportBuilder getJasperReportBuilder(ReportMetadata metadata, ReportDesign design, Class<?> projection, PredicateAggregateSpecification specification, SimpleSelections selections) {
+        metadata.report();
         Map<String, Class<?>> fields = selections.apply();
         Aggregation aggregation = Aggregation.newAggregation(getAggregationOperations(metadata, projection, specification));
         String queryString = getQueryString(aggregation);
@@ -230,7 +250,6 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
         return getDesign(metadata, design, messageResource, converters, fields,
                 projection, true)
                 .setReportName(metadata.getName())
-                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE))
                 .setLocale(metadata.getLocale())
                 .setDataSource(getDataSource(queryString));
     }

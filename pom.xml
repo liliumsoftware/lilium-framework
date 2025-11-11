@@ -18,19 +18,19 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.source.version>3.3.1</maven.source.version>
-        <maven.javadoc.version>3.11.2</maven.javadoc.version>
+        <maven.javadoc.version>3.12.0</maven.javadoc.version>
         <maven.site.version>3.21.0</maven.site.version>
-        <maven.release.version>3.1.1</maven.release.version>
-        <spring-boot.version>3.5.0</spring-boot.version>
+        <maven.release.version>3.2.0</maven.release.version>
+        <spring-boot.version>3.5.7</spring-boot.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
         <hibernate.search.version>7.2.4.Final</hibernate.search.version>
-        <javers.version>7.8.0</javers.version>
+        <javers.version>7.9.0</javers.version>
         <dynamicreports.version>6.20.1</dynamicreports.version>
-        <jasperreports.version>6.21.4</jasperreports.version>
-        <jaxb.version>4.0.5</jaxb.version>
+        <jasperreports.version>6.21.5</jasperreports.version>
+        <jaxb.version>4.0.6</jaxb.version>
         <poi.version>5.4.1</poi.version>
-        <commons.csv.version>1.14.0</commons.csv.version>
-        <icu4j.version>77.1</icu4j.version>
+        <commons.csv.version>1.14.1</commons.csv.version>
+        <icu4j.version>78.1</icu4j.version>
         <mapstruct.version>1.6.3</mapstruct.version>
     </properties>
 
@@ -114,6 +114,10 @@
                 <exclusion>
                     <groupId>net.sf.jasperreports</groupId>
                     <artifactId>jasperreports</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>net.sf.barcode4j</groupId>

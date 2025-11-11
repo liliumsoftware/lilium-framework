@@ -47,12 +47,12 @@ public interface BaseRepository<E, ID> extends Repository<E, ID> {
                 converter.setCurrentUser(metadata.getCurrentUser());
                 if (search.getConstraint() != Constraint.IS_NULL && search.getConstraint() != Constraint.IS_NOT_NULL) {
                     if (search.getConstraint() == Constraint.BETWEEN || search.getConstraint() == Constraint.NOT_BETWEEN) {
-                        search.setValue(converter.convert(String.valueOf(search.getValue())));
-                        search.setAnother(converter.convert(String.valueOf(search.getAnother())));
+                        search.setValue(converter.convert(String.valueOf(search.getValue()), metadata.isReport()));
+                        search.setAnother(converter.convert(String.valueOf(search.getAnother()), metadata.isReport()));
                     } else if (search.getConstraint() == Constraint.IN || search.getConstraint() == Constraint.NOT_IN) {
-                        search.setValues(search.getValues().stream().map(String::valueOf).map(converter::convert).collect(Collectors.toList()));
+                        search.setValues(search.getValues().stream().map(String::valueOf).map(source -> converter.convert(source, metadata.isReport())).collect(Collectors.toList()));
                     } else {
-                        search.setValue(converter.convert(String.valueOf(search.getValue())));
+                        search.setValue(converter.convert(String.valueOf(search.getValue()), metadata.isReport()));
                     }
                 }
             } catch (Exception e) {

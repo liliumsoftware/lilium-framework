@@ -588,7 +588,7 @@ public class DateTimes {
     public LocalDate parseDate(String date, String pattern, CalendarType calendarType) {
         DateFormat dateFormat = getDateFormat(pattern == null ? "yyyy-MM-dd" : pattern, calendarType);
         Instant instant = dateFormat.parse(date).toInstant();
-        return LocalDateTime.ofInstant(instant, LocaleContextHolder.getTimeZone().toZoneId()).toLocalDate();
+        return instant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public LocalDateTime parseDateTime(String date, String pattern) {
@@ -636,7 +636,7 @@ public class DateTimes {
 
     public String format(LocalDate localDate, String pattern, CalendarType calendarType) {
         DateFormat dateFormat = getDateFormat(pattern == null ? "yyyy-MM-dd" : pattern, calendarType);
-        Date date = Date.from(localDate.atStartOfDay().atZone(LocaleContextHolder.getTimeZone().toZoneId()).toInstant());
+        Date date = Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
         return dateFormat.format(date);
     }
 

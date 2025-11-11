@@ -17,6 +17,7 @@ import ir.baho.framework.exception.NotModifiedException;
 import ir.baho.framework.exception.ObjectError;
 import ir.baho.framework.exception.PreconditionFailedException;
 import ir.baho.framework.exception.ServiceUnavailableException;
+import ir.baho.framework.exception.ValidationException;
 import ir.baho.framework.i18n.MessageResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +118,9 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(ConflictException.class)
     public HttpError handleConflictException(ConflictException e) {
+        if (e.getKeyParams() == null) {
+            return new HttpError(HttpStatus.CONFLICT, e.getMessage());
+        }
         List<Error> errors = e.getKeyParams().entrySet().stream()
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
                 .toList();
@@ -127,6 +131,9 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.FAILED_DEPENDENCY)
     @ExceptionHandler(DependencyException.class)
     public HttpError handleDependencyException(DependencyException e) {
+        if (e.getKeyParams() == null) {
+            return new HttpError(HttpStatus.FAILED_DEPENDENCY, e.getMessage());
+        }
         List<Error> errors = e.getKeyParams().entrySet().stream()
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
                 .toList();
@@ -152,7 +159,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public HttpError handleNotFoundException(NotFoundException e) {
         if (e.getKeyParams() == null) {
-            return new HttpError(HttpStatus.NOT_FOUND, messageResource.getMessage("entity.not.found"));
+            return new HttpError(HttpStatus.NOT_FOUND, e.getMessage());
         }
         List<Error> errors = e.getKeyParams().entrySet().stream()
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
@@ -246,6 +253,19 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         String type = e.getType().getSimpleName();
         String message = messageResource.getMessage("metadata.constraint.access", e.getConstraint(), name);
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new FieldError(message, type, name, e.getConstraint()));
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ValidationException.class)
+    public HttpError handleValidationException(ValidationException e) {
+        if (e.getKeyParams() == null) {
+            return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        List<Error> errors = e.getKeyParams().entrySet().stream()
+                .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
+                .toList();
+        return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), errors);
     }
 
     @ResponseBody

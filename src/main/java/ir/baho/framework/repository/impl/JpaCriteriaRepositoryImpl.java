@@ -242,30 +242,44 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
     @SneakyThrows
     @Override
     public JasperPrint report(StaticReportMetadata metadata, InputStream inputStream) {
-        metadata.param(JRParameter.REPORT_VIRTUALIZER, new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR));
-        metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
+        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
         try (Connection connection = getConnection()) {
+            metadata.param(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+            metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
             return JasperFillManager.fillReport(inputStream, metadata.getParams(), connection);
+        } finally {
+            virtualizer.cleanup();
         }
     }
 
     @SneakyThrows
     @Override
     public void save(java.nio.file.Path path, JasperReportBuilder builder) {
+        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
+        Map<String, Object> parameters = builder.getJasperParameters();
+        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
         try (Connection connection = getConnection()) {
-            JRSaver.saveObject(builder.setConnection(connection).toJasperPrint(), path.toFile());
+            JRSaver.saveObject(JasperFillManager.fillReport(builder.toJasperReport(), parameters, connection), path.toFile());
+        } finally {
+            virtualizer.cleanup();
         }
     }
 
-    @Override
     @SneakyThrows
+    @Override
     public void export(JasperReportBuilder builder, ExportType type, OutputStream outputStream) {
+        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
+        Map<String, Object> parameters = builder.getJasperParameters();
+        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
         try (Connection connection = getConnection()) {
-            export(builder.setConnection(connection).toJasperPrint(), type, outputStream);
+            export(JasperFillManager.fillReport(builder.toJasperReport(), parameters, connection), type, outputStream);
+        } finally {
+            virtualizer.cleanup();
         }
     }
 
     protected JasperReportBuilder getJasperReportBuilder(ReportMetadata metadata, ReportDesign design, PredicateCriteriaSpecification<E> specification) {
+        metadata.report();
         Map<String, Expression<?>> expressions = new LinkedHashMap<>();
         Specification<E> spec = getSpecification(metadata, specification, expressions, new HashMap<>());
         TypedQuery<Object[]> query = getQuery(metadata, spec, expressions);
@@ -274,7 +288,6 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
                 expressions.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getJavaType())),
                 getDomainClass(), false)
                 .setReportName(metadata.getName())
-                .setVirtualizer(new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR))
                 .setLocale(metadata.getLocale())
                 .setQuery(getQueryString(query));
     }

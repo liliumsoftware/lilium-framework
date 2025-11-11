@@ -323,8 +323,8 @@ public abstract class BaseController<C extends BaseController<C>> {
             return;
         }
         EntityMetadata<?> metadata = metadataSupplier.get();
-        if (!header.equals(String.valueOf(metadata.getVersion()))) {
-            throw new PreconditionFailedException(metadata.getVersion());
+        if (!header.equals(String.valueOf(metadata.version()))) {
+            throw new PreconditionFailedException(metadata.version());
         }
     }
 
@@ -333,7 +333,7 @@ public abstract class BaseController<C extends BaseController<C>> {
             return;
         }
         EntityMetadata<?> metadata = metadataSupplier.get();
-        if (webRequest.checkNotModified(String.valueOf(metadata.getVersion()), metadata.getLastModifiedDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())) {
+        if (webRequest.checkNotModified(String.valueOf(metadata.version()), metadata.lastModifiedDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())) {
             throw new NotModifiedException();
         }
     }

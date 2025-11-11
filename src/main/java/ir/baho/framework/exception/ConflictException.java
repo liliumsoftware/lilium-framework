@@ -10,7 +10,11 @@ import java.util.stream.Collectors;
 @Getter
 public class ConflictException extends RuntimeException {
 
-    private final Map<String, List<Object>> keyParams;
+    private Map<String, List<Object>> keyParams;
+
+    public ConflictException(String message) {
+        super(message);
+    }
 
     public ConflictException(String key, Object... params) {
         super(params.length == 0 ? key : key + ": " + Arrays.asList(params));

@@ -36,6 +36,10 @@ public abstract class StringConverter<E> extends AbstractValueFormatter<String, 
         };
     }
 
+    public E convert(String source, boolean report) {
+        return convert(source);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public String format(Object value, ReportParameters reportParameters) {

@@ -35,6 +35,9 @@ public class Metadata implements SortMetadata, Serializable {
     @Getter
     private boolean and = true;
 
+    @Getter
+    private transient boolean report = false;
+
     private transient boolean convert = false;
 
     public Metadata(@Valid Sort... sort) {
@@ -69,6 +72,10 @@ public class Metadata implements SortMetadata, Serializable {
         List<Search> searches = this.search == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(this.search));
         searches.addAll(Arrays.asList(search));
         this.search = searches.toArray(Search[]::new);
+    }
+
+    public void report() {
+        this.report = true;
     }
 
     public void converted() {

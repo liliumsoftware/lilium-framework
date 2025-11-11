@@ -10,11 +10,9 @@ import ir.baho.framework.time.DurationType;
 import net.sf.dynamicreports.report.base.expression.AbstractSimpleExpression;
 import net.sf.dynamicreports.report.base.expression.AbstractValueFormatter;
 import net.sf.dynamicreports.report.definition.ReportParameters;
-import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -62,9 +60,8 @@ public class DateTimeFormatters {
                 if (value == null) {
                     return null;
                 }
-                LocalDate date = ((Timestamp) value).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 Locale locale = Objects.equals(reportParameters.getParameterValue(StringConverter.DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
-                return Strings.getText(dateFormat.format(Date.from((date).atStartOfDay().atZone(LocaleContextHolder.getTimeZone().toZoneId()).toInstant())), locale);
+                return Strings.getText(dateFormat.format(Date.from(((Timestamp) value).toInstant())), locale);
             }
         };
     }
@@ -76,9 +73,9 @@ public class DateTimeFormatters {
                 if (value == null) {
                     return null;
                 }
-                LocalDateTime dateTime = LocalDateTime.ofInstant(((Timestamp) value).toInstant(), zoneId);
+                LocalDateTime dateTime = LocalDateTime.ofInstant(((Timestamp) value).toInstant(), ZoneId.systemDefault());
                 Locale locale = Objects.equals(reportParameters.getParameterValue(StringConverter.DIGITS_UNICODE), true) ? reportParameters.getLocale() : Locale.ENGLISH;
-                return Strings.getText(dateTimeFormat.format(Date.from(dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toInstant())), locale);
+                return Strings.getText(dateTimeFormat.format(Date.from(dateTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(zoneId).toInstant())), locale);
             }
         };
     }

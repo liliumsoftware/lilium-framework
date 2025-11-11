@@ -8,20 +8,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
-public class DependencyException extends RuntimeException {
+public class ValidationException extends RuntimeException {
 
     private Map<String, List<Object>> keyParams;
 
-    public DependencyException(String message) {
+    public ValidationException(String message) {
         super(message);
     }
 
-    public DependencyException(String key, Object... params) {
+    public ValidationException(String key, Object... params) {
         super(params.length == 0 ? key : key + ": " + Arrays.asList(params));
         this.keyParams = Map.of(key, Arrays.asList(params));
     }
 
-    public DependencyException(Map<String, List<Object>> keyParams) {
+    public ValidationException(Map<String, List<Object>> keyParams) {
         super(keyParams.entrySet().stream().map((e) -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining(",\n")));
         this.keyParams = keyParams;
     }
