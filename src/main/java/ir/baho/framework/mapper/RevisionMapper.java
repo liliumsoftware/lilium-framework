@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 public interface RevisionMapper {
 
+    @SuppressWarnings("unchecked")
     static <E extends Entity<E, ?>, D extends BaseDtoSimple<D, ?>, N extends Number & Comparable<N>>
     RevisionDto<N, D> toRevisionDto(Revision<N, E> revision, Function<E, D> toDto) {
         RevisionEntityMetadata<E, N> metadata = (RevisionEntityMetadata<E, N>) revision.getMetadata();

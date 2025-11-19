@@ -44,6 +44,7 @@ import org.hibernate.query.sqm.sql.SqmTranslation;
 import org.hibernate.query.sqm.sql.SqmTranslator;
 import org.hibernate.query.sqm.sql.internal.StandardSqmTranslator;
 import org.hibernate.query.sqm.tree.expression.SqmParameter;
+import org.hibernate.query.sqm.tree.jpa.AbstractJpaTupleElement;
 import org.hibernate.sql.ast.tree.select.SelectStatement;
 import org.hibernate.sql.exec.spi.JdbcOperation;
 import org.hibernate.sql.exec.spi.JdbcParameterBindings;
@@ -58,7 +59,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.lang.Nullable;
 import org.springframework.orm.jpa.EntityManagerFactoryInfo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -305,7 +305,8 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         applySpecificationToCriteria(spec, getDomainClass(), query);
 
         Expression<?>[] selections = fields.values().toArray(Expression<?>[]::new);
-        Stream.of(selections).forEach(selection -> selection.alias(JpaCriteriaRepository.getExpressionName(selection)));
+        Stream.of(selections).filter(selection -> selection instanceof AbstractJpaTupleElement<?> path && path.getAlias() == null)
+                .forEach(selection -> selection.alias(JpaCriteriaRepository.getExpressionName(selection)));
         query.select(builder.construct(projection, selections));
 
         return applyRepositoryMethodMetadata(entityManager.createQuery(query));
@@ -318,7 +319,8 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         applySpecificationToCriteria(spec, getDomainClass(), query);
 
         Expression<?>[] selections = fields.values().toArray(Expression<?>[]::new);
-        Stream.of(selections).forEach(selection -> selection.alias(JpaCriteriaRepository.getExpressionName(selection)));
+        Stream.of(selections).filter(selection -> selection instanceof AbstractJpaTupleElement<?> path && path.getAlias() == null)
+                .forEach(selection -> selection.alias(JpaCriteriaRepository.getExpressionName(selection)));
         query.select(builder.tuple(selections));
 
         return applyRepositoryMethodMetadata(entityManager.createQuery(query));
@@ -337,7 +339,7 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
     }
 
     @SuppressWarnings("unchecked")
-    protected <P> Page<P> getPage(Class<P> projection, TypedQuery<?> query, Pageable pageable, @Nullable Specification<E> spec) {
+    protected <P> Page<P> getPage(Class<P> projection, TypedQuery<?> query, Pageable pageable, Specification<E> spec) {
         if (pageable.isPaged()) {
             query.setFirstResult((int) pageable.getOffset());
             query.setMaxResults(pageable.getPageSize());
@@ -350,7 +352,7 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         }
     }
 
-    protected Page<Map<String, Object>> getPage(ProjectionMetadata metadata, TypedQuery<Object[]> query, Pageable pageable, @Nullable Specification<E> spec) {
+    protected Page<Map<String, Object>> getPage(ProjectionMetadata metadata, TypedQuery<Object[]> query, Pageable pageable, Specification<E> spec) {
         if (pageable.isPaged()) {
             query.setFirstResult((int) pageable.getOffset());
             query.setMaxResults(pageable.getPageSize());
@@ -413,7 +415,7 @@ public class JpaCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Seria
         return expressions.toArray(Expression<?>[]::new);
     }
 
-    protected <S, U> void applySpecificationToCriteria(@Nullable Specification<U> spec, Class<U> domainClass, CriteriaQuery<S> query) {
+    protected <S, U> void applySpecificationToCriteria(Specification<U> spec, Class<U> domainClass, CriteriaQuery<S> query) {
         Assert.notNull(domainClass, "Domain class must not be null");
         Assert.notNull(query, "CriteriaQuery must not be null");
 
