@@ -3,7 +3,6 @@ package ir.baho.framework.repository.impl;
 import ir.baho.framework.audit.JaversRepository;
 import ir.baho.framework.audit.impl.JaversRepositoryImpl;
 import ir.baho.framework.converter.StringConverter;
-import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.repository.MongoCriteriaRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mapping.context.MappingContext;
@@ -23,16 +22,14 @@ public class MongoRepositoryFactory extends org.springframework.data.mongodb.rep
     private final ApplicationContext applicationContext;
     private final MongoOperations mongoOperations;
     private final MappingContext<? extends MongoPersistentEntity<?>, MongoPersistentProperty> mappingContext;
-    private final MessageResource messageResource;
     private final List<StringConverter<?>> converters;
 
     public MongoRepositoryFactory(ApplicationContext applicationContext, MongoOperations mongoOperations,
-                                  MessageResource messageResource, List<StringConverter<?>> converters) {
+                                  List<StringConverter<?>> converters) {
         super(mongoOperations);
         this.applicationContext = applicationContext;
         this.mongoOperations = mongoOperations;
         this.mappingContext = mongoOperations.getConverter().getMappingContext();
-        this.messageResource = messageResource;
         this.converters = converters;
     }
 
@@ -41,7 +38,7 @@ public class MongoRepositoryFactory extends org.springframework.data.mongodb.rep
         if (MongoCriteriaRepository.class.isAssignableFrom(information.getRepositoryInterface())) {
             MongoPersistentEntity<?> entity = mappingContext.getRequiredPersistentEntity(information.getDomainType());
             MongoEntityInformation<?, ?> entityInformation = new MappingMongoEntityInformation<>(entity, information.getIdType());
-            return getTargetRepositoryViaReflection(information, entityInformation, mongoOperations, messageResource, converters);
+            return getTargetRepositoryViaReflection(information, entityInformation, mongoOperations, converters);
         }
         return super.getTargetRepository(information);
     }
@@ -55,10 +52,13 @@ public class MongoRepositoryFactory extends org.springframework.data.mongodb.rep
     }
 
     @Override
+    public void setRepositoryBaseClass(Class<?> repositoryBaseClass) {
+    }
+
+    @Override
     protected RepositoryComposition.RepositoryFragments getRepositoryFragments(RepositoryMetadata metadata, MongoOperations operations) {
         if (JaversRepository.class.isAssignableFrom(metadata.getRepositoryInterface())) {
-            Object javersFragment = instantiateClass(JaversRepositoryImpl.class,
-                    applicationContext, getEntityInformation(metadata.getDomainType()));
+            Object javersFragment = instantiateClass(JaversRepositoryImpl.class, applicationContext, getEntityInformation(metadata));
             return RepositoryComposition.RepositoryFragments.just(javersFragment).append(super.getRepositoryFragments(metadata, operations));
         }
         return super.getRepositoryFragments(metadata, operations);

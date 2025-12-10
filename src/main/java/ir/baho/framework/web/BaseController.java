@@ -32,6 +32,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,9 +66,6 @@ public abstract class BaseController<C extends BaseController<C>> {
 
     @Autowired
     protected ApplicationContext applicationContext;
-
-    @Autowired
-    protected WebRequest webRequest;
 
     @Autowired
     @SuppressWarnings("rawtypes")
@@ -256,17 +256,9 @@ public abstract class BaseController<C extends BaseController<C>> {
         }
     }
 
-    protected <D extends BaseFileDto<D, ?>> D partToFile(MultipartFile multipart, D file) {
-        try {
-            String name = multipart.getOriginalFilename() != null ? multipart.getOriginalFilename() : multipart.getName();
-            file.setName(URLDecoder.decode(name, StandardCharsets.UTF_8));
-            file.setSize((int) multipart.getSize());
-            file.setType(multipart.getContentType());
-            file.setValue(multipart.getBytes());
-        } catch (IOException e) {
-            throw new MultipartException("Could not parse multipart file", e);
-        }
-        return file;
+    protected String partToName(MultipartFile multipart) {
+        String name = multipart.getOriginalFilename() != null ? multipart.getOriginalFilename() : multipart.getName();
+        return URLDecoder.decode(name, StandardCharsets.UTF_8);
     }
 
     protected void subscribe(SseEmitter sseEmitter) {
@@ -318,6 +310,10 @@ public abstract class BaseController<C extends BaseController<C>> {
     }
 
     protected void checkPrecondition(Supplier<EntityMetadata<?>> metadataSupplier) {
+        WebRequest webRequest = getWebRequest();
+        if (webRequest == null) {
+            return;
+        }
         String header = webRequest.getHeader(HttpHeaders.IF_MATCH);
         if (header == null) {
             return;
@@ -329,6 +325,10 @@ public abstract class BaseController<C extends BaseController<C>> {
     }
 
     protected void checkNotModified(Supplier<EntityMetadata<?>> metadataSupplier) {
+        WebRequest webRequest = getWebRequest();
+        if (webRequest == null) {
+            return;
+        }
         if (webRequest.getHeader(HttpHeaders.IF_NONE_MATCH) == null && webRequest.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null) {
             return;
         }
@@ -336,6 +336,14 @@ public abstract class BaseController<C extends BaseController<C>> {
         if (webRequest.checkNotModified(String.valueOf(metadata.version()), metadata.lastModifiedDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())) {
             throw new NotModifiedException();
         }
+    }
+
+    private WebRequest getWebRequest() {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            return null;
+        }
+        return new ServletWebRequest(attrs.getRequest(), attrs.getResponse());
     }
 
 }

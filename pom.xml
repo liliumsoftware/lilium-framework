@@ -15,21 +15,18 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.version>3.14.1</maven.compiler.version>
-        <maven.source.version>3.3.1</maven.source.version>
+        <maven.source.version>3.4.0</maven.source.version>
         <maven.javadoc.version>3.12.0</maven.javadoc.version>
         <maven.site.version>3.21.0</maven.site.version>
         <maven.release.version>3.2.0</maven.release.version>
-        <spring-boot.version>3.5.7</spring-boot.version>
-        <spring-cloud.version>2025.0.0</spring-cloud.version>
-        <hibernate.search.version>7.2.4.Final</hibernate.search.version>
+        <spring-boot.version>4.0.1</spring-boot.version>
+        <hibernate.version>7.2.0.Final</hibernate.version>
+        <hibernate.search.version>8.2.0.Final</hibernate.search.version>
         <javers.version>7.9.0</javers.version>
-        <dynamicreports.version>6.20.1</dynamicreports.version>
-        <jasperreports.version>6.21.5</jasperreports.version>
-        <jaxb.version>4.0.6</jaxb.version>
-        <poi.version>5.4.1</poi.version>
+        <poi.version>5.5.1</poi.version>
         <commons.csv.version>1.14.1</commons.csv.version>
         <icu4j.version>78.1</icu4j.version>
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -67,11 +64,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
             <scope>provided</scope>
@@ -97,45 +89,14 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.javers</groupId>
             <artifactId>javers-spring</artifactId>
             <version>${javers.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.dynamicreports</groupId>
-            <artifactId>dynamicreports-core</artifactId>
-            <version>${dynamicreports.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.sf.jasperreports</groupId>
-                    <artifactId>jasperreports</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.sf.barcode4j</groupId>
-                    <artifactId>barcode4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-            <version>${jasperreports.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -180,13 +141,6 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.hibernate.search</groupId>
                 <artifactId>hibernate-search-bom</artifactId>
                 <version>${hibernate.search.version}</version>
@@ -217,14 +171,15 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.version}</version>
                 <configuration>
+                    <parameters>true</parameters>
                     <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.hibernate.orm</groupId>
-                            <artifactId>hibernate-jpamodelgen</artifactId>
-                        </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                        </path>
+                        <path>
+                            <groupId>org.hibernate.orm</groupId>
+                            <artifactId>hibernate-processor</artifactId>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
@@ -277,6 +232,22 @@
                     <goals>install</goals>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-maven-plugin</artifactId>
+                <version>${hibernate.version}</version>
+                <executions>
+                    <execution>
+                        <id>enhance</id>
+                        <goals>
+                            <goal>enhance</goal>
+                        </goals>
+                        <configuration>
+                            <classesDirectory>src/main/java/ir/baho/framework/domain</classesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

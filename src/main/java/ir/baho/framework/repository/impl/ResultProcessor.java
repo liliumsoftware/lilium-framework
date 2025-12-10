@@ -1,14 +1,16 @@
 package ir.baho.framework.repository.impl;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.CollectionFactory;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.data.domain.SearchResults;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Window;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.util.ReactiveWrapperConverters;
-import org.springframework.lang.Nullable;
+import org.springframework.lang.Contract;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
@@ -39,9 +41,9 @@ public class ResultProcessor {
         }
     }
 
-    @Nullable
+    @Contract("null, _ -> null; !null, _ -> !null")
     @SuppressWarnings("unchecked")
-    public <T> T processResult(@Nullable Object source, Converter<Object, Object> preparingConverter) {
+    public <T> @Nullable T processResult(@Nullable Object source, Converter<Object, Object> preparingConverter) {
         if (source == null || type.isInstance(source) || !type.isProjecting()) {
             return (T) source;
         }
@@ -50,26 +52,30 @@ public class ResultProcessor {
 
         ChainingConverter converter = ChainingConverter.of(type.getReturnedType(), preparingConverter).and(this.converter);
 
-        if (source instanceof Window<?>) {
-            return (T) ((Window<?>) source).map(converter::convert);
-        }
-
-        if (source instanceof Slice) {
-            return (T) ((Slice<?>) source).map(converter::convert);
-        }
-
-        if (source instanceof Collection<?> collection) {
-            Collection<Object> target = createCollectionFor(collection);
-
-            for (Object columns : collection) {
-                target.add(type.isInstance(columns) ? columns : converter.convert(columns));
+        switch (source) {
+            case Window<?> objects -> {
+                return (T) objects.map(converter::convert);
             }
+            case Slice<?> slice -> {
+                return (T) slice.map(converter::convert);
+            }
+            case SearchResults<?> results -> {
+                return (T) results.map(converter::convert);
+            }
+            case Collection<?> collection -> {
+                Collection<Object> target = createCollectionFor(collection);
 
-            return (T) target;
-        }
+                for (Object columns : collection) {
+                    target.add(type.isInstance(columns) ? columns : converter.convert(columns));
+                }
 
-        if (source instanceof Stream) {
-            return (T) ((Stream<Object>) source).map(t -> type.isInstance(t) ? t : converter.convert(t));
+                return (T) target;
+            }
+            case Stream<?> _ -> {
+                return (T) ((Stream<Object>) source).map(t -> type.isInstance(t) ? t : converter.convert(t));
+            }
+            default -> {
+            }
         }
 
         if (ReactiveWrapperConverters.supports(source.getClass())) {
@@ -79,15 +85,9 @@ public class ResultProcessor {
         return (T) converter.convert(source);
     }
 
-    private static class ChainingConverter implements Converter<Object, Object> {
-
-        private final Class<?> targetType;
-        private final Converter<Object, Object> delegate;
-
-        private ChainingConverter(Class<?> targetType, Converter<Object, Object> delegate) {
-            this.targetType = targetType;
-            this.delegate = delegate;
-        }
+    private record ChainingConverter(Class<?> targetType,
+                                     Converter<Object, Object> delegate
+    ) implements Converter<Object, Object> {
 
         public static ChainingConverter of(Class<?> targetType, Converter<Object, Object> delegate) {
             return new ChainingConverter(targetType, delegate);
@@ -107,28 +107,20 @@ public class ResultProcessor {
             });
         }
 
-        @Nullable
         @Override
-        public Object convert(Object source) {
+        public @Nullable Object convert(Object source) {
             return delegate.convert(source);
         }
 
     }
 
-    private static class ProjectingConverter implements Converter<Object, Object> {
-
-        private final ReturnedType type;
-        private final ProjectionFactory factory;
-        private final ConversionService conversionService;
+    private record ProjectingConverter(ReturnedType type,
+                                       ProjectionFactory factory,
+                                       ConversionService conversionService
+    ) implements Converter<Object, Object> {
 
         ProjectingConverter(ReturnedType type, ProjectionFactory factory) {
             this(type, factory, DefaultConversionService.getSharedInstance());
-        }
-
-        public ProjectingConverter(ReturnedType type, ProjectionFactory factory, ConversionService conversionService) {
-            this.type = type;
-            this.factory = factory;
-            this.conversionService = conversionService;
         }
 
         private static Map<String, Object> toMap(Collection<?> values, List<String> names) {
@@ -142,9 +134,8 @@ public class ResultProcessor {
             return result;
         }
 
-        @Nullable
         @Override
-        public Object convert(Object source) {
+        public @Nullable Object convert(Object source) {
             Class<?> targetType = type.getReturnedType();
 
             if (targetType.isInterface()) {

@@ -1,30 +1,44 @@
 [
   {
-    "name": "ir.baho.framework.repository.JpaRepositoryFactoryBean",
-    "allPublicMethods": true,
+    "name": "java.util.Locale",
     "allPublicConstructors": true,
     "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "java.time.Ser",
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "ir.baho.framework.repository.JpaRepositoryFactoryBean",
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
     "allDeclaredMethods": true
   },
   {
     "name": "ir.baho.framework.repository.impl.JpaCriteriaRepositoryImpl",
-    "allPublicMethods": true,
     "allPublicConstructors": true,
     "allDeclaredConstructors": true,
+    "allPublicMethods": true,
     "allDeclaredMethods": true
   },
   {
     "name": "ir.baho.framework.repository.MongoRepositoryFactoryBean",
-    "allPublicMethods": true,
     "allPublicConstructors": true,
     "allDeclaredConstructors": true,
+    "allPublicMethods": true,
     "allDeclaredMethods": true
   },
   {
     "name": "ir.baho.framework.repository.impl.MongoCriteriaRepositoryImpl",
-    "allPublicMethods": true,
     "allPublicConstructors": true,
     "allDeclaredConstructors": true,
+    "allPublicMethods": true,
     "allDeclaredMethods": true
   }
 ]

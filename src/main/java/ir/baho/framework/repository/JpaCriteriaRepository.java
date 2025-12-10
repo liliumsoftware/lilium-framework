@@ -5,21 +5,17 @@ import ir.baho.framework.metadata.Metadata;
 import ir.baho.framework.metadata.PageMetadata;
 import ir.baho.framework.metadata.ProjectionMetadata;
 import ir.baho.framework.metadata.ProjectionPageMetadata;
-import ir.baho.framework.metadata.ReportMetadata;
 import ir.baho.framework.metadata.SummaryPage;
-import ir.baho.framework.metadata.report.ReportDesign;
 import ir.baho.framework.repository.specification.PredicateCriteriaSpecification;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.metamodel.Attribute;
-import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import org.hibernate.query.sqm.SqmPathSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +23,16 @@ import java.util.stream.Stream;
 
 @NoRepositoryBean
 public interface JpaCriteriaRepository<E extends Entity<?, ID>, ID extends Serializable & Comparable<ID>>
-        extends ReportRepository<E, ID>, JpaSpecificationExecutor<E> {
+        extends BaseRepository<E, ID>, JpaSpecificationExecutor<E> {
 
     char SEPARATOR = '.';
 
     @SafeVarargs
-    static <T> boolean containsAttribute(Metadata metadata, Path<T> path, Attribute<T, ?>... attributes) {
+    static <T> boolean containsAttribute(Metadata metadata, Expression<T> expression, Attribute<T, ?>... attributes) {
         if (metadata == null) {
             return false;
         }
-        List<String> fields = Stream.of(attributes).map(a -> getExpressionName(path) + SEPARATOR + a.getName()).toList();
+        List<String> fields = Stream.of(attributes).map(a -> getExpressionName(expression) + SEPARATOR + a.getName()).toList();
         if (metadata instanceof ProjectionMetadata projectionMetadata && projectionMetadata.getField() != null &&
                 fields.stream().anyMatch(f -> Stream.of(projectionMetadata.getField()).anyMatch(s -> s.equals(f) || s.startsWith(f + SEPARATOR)))) {
             return true;
@@ -86,9 +82,5 @@ public interface JpaCriteriaRepository<E extends Entity<?, ID>, ID extends Seria
     Page<Map<String, Object>> findAll(ProjectionPageMetadata metadata, PredicateCriteriaSpecification<E> specification);
 
     List<Map<String, Object>> findAll(ProjectionMetadata metadata, PredicateCriteriaSpecification<E> specification);
-
-    JasperReportBuilder report(ReportMetadata metadata, ReportDesign design, PredicateCriteriaSpecification<E> specification);
-
-    JasperReportBuilder report(ReportMetadata metadata, ReportDesign design, InputStream inputStream, PredicateCriteriaSpecification<E> specification);
 
 }

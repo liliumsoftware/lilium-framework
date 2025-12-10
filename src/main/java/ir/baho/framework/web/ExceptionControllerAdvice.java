@@ -1,8 +1,7 @@
 package ir.baho.framework.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoWriteException;
+import ir.baho.framework.exception.AccessDeniedException;
 import ir.baho.framework.exception.ConflictException;
 import ir.baho.framework.exception.DependencyException;
 import ir.baho.framework.exception.Error;
@@ -29,13 +28,10 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.mapping.PropertyReferenceException;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,10 +41,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,17 +55,17 @@ import java.util.stream.Stream;
 @ControllerAdvice(annotations = RestController.class)
 @RequiredArgsConstructor
 @Slf4j
-public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
+public class ExceptionControllerAdvice {
 
     private final MessageResource messageResource;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper mapper;
 
     @ResponseBody
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<?> handleHttpClientErrorException(HttpClientErrorException e) {
         try {
-            return ResponseEntity.status(e.getStatusCode()).body(objectMapper.readTree(e.getResponseBodyAsString()));
-        } catch (JsonProcessingException ex) {
+            return ResponseEntity.status(e.getStatusCode()).body(mapper.readTree(e.getResponseBodyAsString()));
+        } catch (JacksonException ex) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         }
     }
@@ -92,17 +88,32 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
                 if (name.contains(".")) {
                     name = name.substring(name.lastIndexOf('.') + 1);
                 }
-                return new HttpError(HttpStatus.CONFLICT, messageResource.getMessageOrDefault(name.toUpperCase(),
-                        messageResource.getMessage("entity.integrity.violation")));
+                return switch (exception.getKind()) {
+                    case NOT_NULL ->
+                            new HttpError(HttpStatus.CONFLICT, messageResource.getMessageOrDefault(name.toUpperCase(),
+                                    messageResource.getMessage("entity.NOT_NULL.violation")));
+                    case UNIQUE ->
+                            new HttpError(HttpStatus.CONFLICT, messageResource.getMessageOrDefault(name.toUpperCase(),
+                                    messageResource.getMessage("entity.UNIQUE.violation")));
+                    case FOREIGN_KEY ->
+                            new HttpError(HttpStatus.CONFLICT, messageResource.getMessageOrDefault(name.toUpperCase(),
+                                    messageResource.getMessage("entity.FOREIGN_KEY.violation")));
+                    case CHECK ->
+                            new HttpError(HttpStatus.CONFLICT, messageResource.getMessageOrDefault(name.toUpperCase(),
+                                    messageResource.getMessage("entity.CHECK.violation")));
+                    default ->
+                            new HttpError(HttpStatus.CONFLICT, messageResource.getMessageOrDefault(name.toUpperCase(),
+                                    messageResource.getMessage("entity.OTHER.violation")));
+                };
             }
-        } catch (ClassNotFoundException ignored) {
+        } catch (ClassNotFoundException _) {
         }
         try {
             Class.forName("com.mongodb.MongoWriteException");
             if (e.getCause() instanceof MongoWriteException exception) {
                 return new HttpError(HttpStatus.CONFLICT, exception.getMessage(), new Error(exception.getError().getMessage()));
             }
-        } catch (ClassNotFoundException ignored) {
+        } catch (ClassNotFoundException _) {
         }
         return new HttpError(HttpStatus.CONFLICT, e.getMessage());
     }
@@ -119,7 +130,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public HttpError handleConflictException(ConflictException e) {
         if (e.getKeyParams() == null) {
-            return new HttpError(HttpStatus.CONFLICT, e.getMessage());
+            return new HttpError(HttpStatus.CONFLICT, messageResource.getMessageOrDefault(e.getMessage(), e.getMessage()));
         }
         List<Error> errors = e.getKeyParams().entrySet().stream()
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
@@ -132,7 +143,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DependencyException.class)
     public HttpError handleDependencyException(DependencyException e) {
         if (e.getKeyParams() == null) {
-            return new HttpError(HttpStatus.FAILED_DEPENDENCY, e.getMessage());
+            return new HttpError(HttpStatus.FAILED_DEPENDENCY, messageResource.getMessageOrDefault(e.getMessage(), e.getMessage()));
         }
         List<Error> errors = e.getKeyParams().entrySet().stream()
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
@@ -148,6 +159,19 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     }
 
     @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public HttpError handleAccessDeniedException(AccessDeniedException e) {
+        if (e.getKeyParams() == null) {
+            return new HttpError(HttpStatus.FORBIDDEN, messageResource.getMessageOrDefault(e.getMessage(), e.getMessage()));
+        }
+        List<Error> errors = e.getKeyParams().entrySet().stream()
+                .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
+                .toList();
+        return new HttpError(HttpStatus.FORBIDDEN, e.getMessage(), errors);
+    }
+
+    @ResponseBody
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public HttpError handleEmptyResultDataAccessException() {
@@ -159,7 +183,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public HttpError handleNotFoundException(NotFoundException e) {
         if (e.getKeyParams() == null) {
-            return new HttpError(HttpStatus.NOT_FOUND, e.getMessage());
+            return new HttpError(HttpStatus.NOT_FOUND, messageResource.getMessageOrDefault(e.getMessage(), e.getMessage()));
         }
         List<Error> errors = e.getKeyParams().entrySet().stream()
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
@@ -260,7 +284,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public HttpError handleValidationException(ValidationException e) {
         if (e.getKeyParams() == null) {
-            return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new HttpError(HttpStatus.BAD_REQUEST, messageResource.getMessageOrDefault(e.getMessage(), e.getMessage()));
         }
         List<Error> errors = e.getKeyParams().entrySet().stream()
                 .map(entry -> new Error(messageResource.getMessageOrDefault(entry.getKey(), entry.getKey(), entry.getValue().toArray(Object[]::new))))
@@ -313,9 +337,10 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         return new HttpError(HttpStatus.INTERNAL_SERVER_ERROR, messageResource.getMessage("internal.server.error"));
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
         List<Error> errors = new ArrayList<>();
         e.getAllErrors().forEach(error -> {
             if (error instanceof org.springframework.validation.FieldError fe) {
@@ -329,12 +354,6 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
             }
         });
         return ResponseEntity.badRequest().body(new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), errors));
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(
-            HttpMessageNotReadableException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return ResponseEntity.badRequest().body(new HttpError(HttpStatus.BAD_REQUEST, e.getMessage()));
     }
 
 }

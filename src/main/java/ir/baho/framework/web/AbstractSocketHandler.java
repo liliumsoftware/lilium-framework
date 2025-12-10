@@ -1,6 +1,5 @@
 package ir.baho.framework.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.baho.framework.service.CurrentUser;
 import ir.baho.framework.service.impl.SocketCurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +10,14 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
 public abstract class AbstractSocketHandler extends AbstractWebSocketHandler {
 
     @Autowired
-    protected ObjectMapper objectMapper;
+    protected JsonMapper mapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -65,15 +65,15 @@ public abstract class AbstractSocketHandler extends AbstractWebSocketHandler {
     }
 
     protected void sendMessage(WebSocketSession session, Object message) throws Exception {
-        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+        session.sendMessage(new TextMessage(mapper.writeValueAsString(message)));
     }
 
     protected void sendMessage(WebSocketSession session, byte[] message) throws Exception {
         session.sendMessage(new BinaryMessage(message));
     }
 
-    protected <V> V getMessage(TextMessage message, Class<V> clas) throws Exception {
-        return objectMapper.readValue(message.getPayload(), clas);
+    protected <V> V getMessage(TextMessage message, Class<V> clas) {
+        return mapper.readValue(message.getPayload(), clas);
     }
 
     protected String getParam(WebSocketSession session, String name) {

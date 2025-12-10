@@ -33,7 +33,6 @@ public class DateTimeConverter extends StringConverter<LocalDateTime> {
         return ZonedDateTime.ofInstant(dateFormat.parse(source).toInstant(), ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
     }
 
-    @SneakyThrows
     @Override
     public LocalDateTime convert(String source) {
         return dateTimes.parseDateTime(source, getFormat(), getCalendarType());

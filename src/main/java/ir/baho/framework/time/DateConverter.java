@@ -4,7 +4,6 @@ import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.i18n.DateTimes;
 import ir.baho.framework.i18n.Strings;
 import ir.baho.framework.service.CurrentUser;
-import lombok.SneakyThrows;
 
 import java.time.LocalDate;
 import java.util.Locale;
@@ -20,7 +19,6 @@ public class DateConverter extends StringConverter<LocalDate> {
         this.currentUser = currentUser;
     }
 
-    @SneakyThrows
     @Override
     public LocalDate convert(String source) {
         return dateTimes.parseDate(source, getFormat(), getCalendarType());

@@ -5,7 +5,6 @@ import ir.baho.framework.audit.JaversRepository;
 import ir.baho.framework.audit.impl.EnversRepositoryImpl;
 import ir.baho.framework.audit.impl.JaversRepositoryImpl;
 import ir.baho.framework.converter.StringConverter;
-import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.repository.JpaCriteriaRepository;
 import jakarta.persistence.EntityManager;
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -27,11 +26,10 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
     private final ApplicationContext applicationContext;
     private final EntityManager entityManager;
     private final RevisionEntityInformation revisionEntityInformation;
-    private final MessageResource messageResource;
     private final List<StringConverter<?>> converters;
 
     public JpaRepositoryFactory(ApplicationContext applicationContext, EntityManager entityManager, Class<?> revisionEntityClass,
-                                MessageResource messageResource, List<StringConverter<?>> converters) {
+                                List<StringConverter<?>> converters) {
         super(entityManager);
         this.applicationContext = applicationContext;
         this.entityManager = entityManager;
@@ -43,7 +41,6 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
         } else {
             this.revisionEntityInformation = new DefaultRevisionEntityInformation();
         }
-        this.messageResource = messageResource;
         this.converters = converters;
     }
 
@@ -51,7 +48,7 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
     protected JpaRepositoryImplementation<?, ?> getTargetRepository(RepositoryInformation information, EntityManager entityManager) {
         if (JpaCriteriaRepository.class.isAssignableFrom(information.getRepositoryInterface())) {
             JpaEntityInformation<?, Serializable> entityInformation = getEntityInformation(information.getDomainType());
-            return getTargetRepositoryViaReflection(information, entityInformation, entityManager, messageResource, converters);
+            return getTargetRepositoryViaReflection(information, entityInformation, entityManager, converters);
         }
         return super.getTargetRepository(information, entityManager);
     }
@@ -62,6 +59,10 @@ public class JpaRepositoryFactory extends org.springframework.data.jpa.repositor
             return JpaCriteriaRepositoryImpl.class;
         }
         return super.getRepositoryBaseClass(metadata);
+    }
+
+    @Override
+    public void setRepositoryBaseClass(Class<?> repositoryBaseClass) {
     }
 
     @Override

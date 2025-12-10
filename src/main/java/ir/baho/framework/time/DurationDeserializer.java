@@ -1,21 +1,24 @@
 package ir.baho.framework.time;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import ir.baho.framework.i18n.DateTimes;
 import ir.baho.framework.service.CurrentUser;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.time.Duration;
 
-@RequiredArgsConstructor
-public class DurationDeserializer extends JsonDeserializer<Duration> implements Converter<String, Duration> {
+public class DurationDeserializer extends StdDeserializer<Duration> implements Converter<String, Duration> {
 
     private final DateTimes dateTimes;
     private final CurrentUser currentUser;
+
+    public DurationDeserializer(DateTimes dateTimes, CurrentUser currentUser) {
+        super(Duration.class);
+        this.dateTimes = dateTimes;
+        this.currentUser = currentUser;
+    }
 
     @Override
     public Duration convert(String source) {
@@ -23,8 +26,8 @@ public class DurationDeserializer extends JsonDeserializer<Duration> implements 
     }
 
     @Override
-    public Duration deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return convert(jsonParser.getValueAsString());
+    public Duration deserialize(JsonParser p, DeserializationContext ctxt) {
+        return convert(p.getValueAsString());
     }
 
 }

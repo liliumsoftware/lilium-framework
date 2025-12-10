@@ -1,24 +1,25 @@
 package ir.baho.framework.time;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import ir.baho.framework.i18n.DateTimes;
 import ir.baho.framework.service.CurrentUser;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.core.convert.converter.Converter;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
-@RequiredArgsConstructor
-public class DateDeserializer extends JsonDeserializer<LocalDate> implements Converter<String, LocalDate> {
+public class DateDeserializer extends StdDeserializer<LocalDate> implements Converter<String, LocalDate> {
 
     private final DateTimes dateTimes;
     private final CurrentUser currentUser;
 
-    @SneakyThrows
+    public DateDeserializer(DateTimes dateTimes, CurrentUser currentUser) {
+        super(LocalDate.class);
+        this.dateTimes = dateTimes;
+        this.currentUser = currentUser;
+    }
+
     @Override
     public LocalDate convert(String date) {
         String format = currentUser.dateFormat();
@@ -26,8 +27,8 @@ public class DateDeserializer extends JsonDeserializer<LocalDate> implements Con
     }
 
     @Override
-    public LocalDate deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return convert(jsonParser.getValueAsString());
+    public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) {
+        return convert(p.getValueAsString());
     }
 
 }

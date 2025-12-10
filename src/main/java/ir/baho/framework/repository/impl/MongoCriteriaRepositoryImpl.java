@@ -4,38 +4,22 @@ import com.mongodb.BasicDBObject;
 import ir.baho.framework.converter.StringConverter;
 import ir.baho.framework.domain.Entity;
 import ir.baho.framework.exception.MetadataFieldAccessException;
-import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.metadata.Constraint;
-import ir.baho.framework.metadata.ExportType;
 import ir.baho.framework.metadata.Metadata;
 import ir.baho.framework.metadata.PageMetadata;
 import ir.baho.framework.metadata.ProjectionMetadata;
 import ir.baho.framework.metadata.ProjectionPageMetadata;
-import ir.baho.framework.metadata.ReportMetadata;
 import ir.baho.framework.metadata.Search;
-import ir.baho.framework.metadata.StaticReportMetadata;
-import ir.baho.framework.metadata.report.ReportDesign;
 import ir.baho.framework.repository.MongoCriteriaRepository;
-import ir.baho.framework.repository.impl.mongo.MongoDbDataSource;
-import ir.baho.framework.repository.impl.mongo.MongoDbQuery;
 import ir.baho.framework.repository.specification.PredicateAggregateSpecification;
 import ir.baho.framework.repository.specification.PredicateMongoSpecification;
 import ir.baho.framework.repository.specification.SimpleSelections;
-import lombok.SneakyThrows;
-import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRParameter;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
-import net.sf.jasperreports.engine.util.JRSaver;
 import org.bson.types.ObjectId;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -45,10 +29,7 @@ import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
 import org.springframework.data.support.PageableExecutionUtils;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -61,15 +42,13 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
 
     private final MongoEntityInformation<E, ID> entityInformation;
     private final MongoOperations mongoOperations;
-    private final MessageResource messageResource;
     private final List<StringConverter<? extends Comparable<?>>> converters;
 
     public MongoCriteriaRepositoryImpl(MongoEntityInformation<E, ID> entityInformation, MongoOperations mongoOperations,
-                                       MessageResource messageResource, List<StringConverter<? extends Comparable<?>>> converters) {
+                                       List<StringConverter<? extends Comparable<?>>> converters) {
         super(entityInformation, mongoOperations);
         this.entityInformation = entityInformation;
         this.mongoOperations = mongoOperations;
-        this.messageResource = messageResource;
         this.converters = converters;
     }
 
@@ -162,102 +141,6 @@ public class MongoCriteriaRepositoryImpl<E extends Entity<?, ID>, ID extends Ser
     public <P> List<P> findAll(Metadata metadata, Class<P> projection, PredicateAggregateSpecification specification) {
         Aggregation aggregation = Aggregation.newAggregation(getAggregationOperations(metadata, projection, specification));
         return mongoOperations.aggregate(aggregation, this.entityInformation.getJavaType(), projection).getMappedResults();
-    }
-
-    @SneakyThrows
-    @Override
-    public JasperReportBuilder report(ReportMetadata metadata, ReportDesign design, PredicateMongoSpecification specification, SimpleSelections selections) {
-        return getJasperReportBuilder(metadata, design, specification, selections);
-    }
-
-    @SneakyThrows
-    @Override
-    public JasperReportBuilder report(ReportMetadata metadata, ReportDesign design, InputStream inputStream, PredicateMongoSpecification specification, SimpleSelections selections) {
-        return getJasperReportBuilder(metadata, design, specification, selections).setTemplateDesign(inputStream);
-    }
-
-    @SneakyThrows
-    @Override
-    public JasperReportBuilder report(ReportMetadata metadata, ReportDesign design, Class<?> projection, PredicateAggregateSpecification specification, SimpleSelections selections) {
-        return getJasperReportBuilder(metadata, design, projection, specification, selections);
-    }
-
-    @SneakyThrows
-    @Override
-    public JasperReportBuilder report(ReportMetadata metadata, ReportDesign design, Class<?> projection, InputStream inputStream, PredicateAggregateSpecification specification, SimpleSelections selections) {
-        return getJasperReportBuilder(metadata, design, projection, specification, selections).setTemplateDesign(inputStream);
-    }
-
-    @SneakyThrows
-    @Override
-    public JasperPrint report(StaticReportMetadata metadata, InputStream inputStream) {
-        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
-        try {
-            metadata.param(JRParameter.REPORT_VIRTUALIZER, virtualizer);
-            metadata.param(JRParameter.REPORT_LOCALE, metadata.getLocale());
-            return JasperFillManager.fillReport(inputStream, metadata.getParams(), getDataSource(metadata.getQuery()));
-        } finally {
-            virtualizer.cleanup();
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public void save(Path path, JasperReportBuilder builder) {
-        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
-        Map<String, Object> parameters = builder.getJasperParameters();
-        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
-        try {
-            JRSaver.saveObject(JasperFillManager.fillReport(builder.toJasperReport(), parameters, builder.getDataSource()), path.toFile());
-        } finally {
-            virtualizer.cleanup();
-        }
-    }
-
-    @SneakyThrows
-    @Override
-    public void export(JasperReportBuilder builder, ExportType type, OutputStream outputStream) {
-        JRFileVirtualizer virtualizer = new JRFileVirtualizer(VIRTUALIZER_MAX_SIZE, VIRTUALIZER_TEMP_DIR);
-        Map<String, Object> parameters = builder.getJasperParameters();
-        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
-        try {
-            export(JasperFillManager.fillReport(builder.toJasperReport(), parameters, builder.getDataSource()), type, outputStream);
-        } finally {
-            virtualizer.cleanup();
-        }
-    }
-
-    protected JasperReportBuilder getJasperReportBuilder(ReportMetadata metadata, ReportDesign design, PredicateMongoSpecification specification, SimpleSelections selections) {
-        metadata.report();
-        Map<String, Class<?>> fields = selections.apply();
-        Query query = getQuery(metadata, specification).with(getSort(metadata));
-        query.fields().include(getSelections(metadata.getField(), fields.keySet()));
-        String queryString = getQueryString(query);
-
-        return getDesign(metadata, design, messageResource, converters, fields,
-                entityInformation.getJavaType(), true)
-                .setReportName(metadata.getName())
-                .setLocale(metadata.getLocale())
-                .setDataSource(getDataSource(queryString));
-    }
-
-    protected JasperReportBuilder getJasperReportBuilder(ReportMetadata metadata, ReportDesign design, Class<?> projection, PredicateAggregateSpecification specification, SimpleSelections selections) {
-        metadata.report();
-        Map<String, Class<?>> fields = selections.apply();
-        Aggregation aggregation = Aggregation.newAggregation(getAggregationOperations(metadata, projection, specification));
-        String queryString = getQueryString(aggregation);
-
-        return getDesign(metadata, design, messageResource, converters, fields,
-                projection, true)
-                .setReportName(metadata.getName())
-                .setLocale(metadata.getLocale())
-                .setDataSource(getDataSource(queryString));
-    }
-
-    @SneakyThrows
-    protected JRDataSource getDataSource(String query) {
-        return new MongoDbDataSource(new MongoDbQuery(query,
-                ((MongoTemplate) mongoOperations).getMongoDatabaseFactory().getMongoDatabase(), Map.of()));
     }
 
     protected Query getQuery(Metadata metadata, PredicateMongoSpecification specification) {

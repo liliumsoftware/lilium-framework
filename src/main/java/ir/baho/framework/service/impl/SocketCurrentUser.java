@@ -1,6 +1,5 @@
 package ir.baho.framework.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.baho.framework.enumeration.EnumType;
 import ir.baho.framework.service.CurrentUser;
 import ir.baho.framework.time.CalendarType;
@@ -8,8 +7,9 @@ import ir.baho.framework.time.DurationType;
 import ir.baho.framework.web.Headers;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.net.URI;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class SocketCurrentUser implements CurrentUser {
 
     private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     private final Map<?, ?> map = new HashMap<>();
 
@@ -37,7 +37,7 @@ public class SocketCurrentUser implements CurrentUser {
             if (token != null) {
                 try {
                     map.putAll(MAPPER.readValue(DECODER.decode(token.split("\\.")[1]), Map.class));
-                } catch (IOException ignored) {
+                } catch (JacksonException _) {
                 }
             }
         }
@@ -94,7 +94,7 @@ public class SocketCurrentUser implements CurrentUser {
         if (calendar != null) {
             try {
                 return CalendarType.valueOf(calendar);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
             }
         }
         return null;
@@ -121,7 +121,7 @@ public class SocketCurrentUser implements CurrentUser {
         if (type != null) {
             try {
                 return DurationType.valueOf(type);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
             }
         }
         return null;
@@ -133,7 +133,7 @@ public class SocketCurrentUser implements CurrentUser {
         if (type != null) {
             try {
                 return EnumType.valueOf(type);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
             }
         }
         return null;

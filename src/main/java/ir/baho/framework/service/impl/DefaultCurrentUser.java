@@ -1,6 +1,5 @@
 package ir.baho.framework.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.baho.framework.enumeration.EnumType;
 import ir.baho.framework.service.CurrentUser;
 import ir.baho.framework.time.CalendarType;
@@ -9,8 +8,9 @@ import ir.baho.framework.web.Headers;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Base64;
@@ -23,7 +23,7 @@ import java.util.Optional;
 public class DefaultCurrentUser implements CurrentUser {
 
     private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     @Override
     public String id() {
@@ -76,7 +76,7 @@ public class DefaultCurrentUser implements CurrentUser {
         if (calendar != null) {
             try {
                 return CalendarType.valueOf(calendar);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
             }
         }
         return null;
@@ -103,7 +103,7 @@ public class DefaultCurrentUser implements CurrentUser {
         if (type != null) {
             try {
                 return DurationType.valueOf(type);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
             }
         }
         return null;
@@ -115,7 +115,7 @@ public class DefaultCurrentUser implements CurrentUser {
         if (type != null) {
             try {
                 return EnumType.valueOf(type);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
             }
         }
         return null;
@@ -175,7 +175,7 @@ public class DefaultCurrentUser implements CurrentUser {
             if (header != null) {
                 try {
                     return MAPPER.readValue(DECODER.decode(header.split("\\.")[1]), Map.class);
-                } catch (IOException ignored) {
+                } catch (JacksonException _) {
                 }
             }
         }

@@ -1,15 +1,15 @@
 package ir.baho.framework.converter;
 
-import ir.baho.framework.dto.BaseDtoSimple;
+import ir.baho.framework.dto.BaseIdDto;
 import ir.baho.framework.dto.EnumDto;
 import ir.baho.framework.enumeration.EnumType;
 import ir.baho.framework.enumeration.EnumValue;
 import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.i18n.Strings;
+import ir.baho.framework.report.ReportParameters;
 import ir.baho.framework.service.CurrentUser;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import net.sf.dynamicreports.report.definition.ReportParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
@@ -37,7 +37,7 @@ public class EnumConverter<E extends Enum<E>> extends StringConverter<E> {
         String prefix;
         if (clas.isMemberClass()) {
             Class<?> outer = clas.getEnclosingClass();
-            prefix = BaseDtoSimple.class.isAssignableFrom(outer) && StringUtils.endsWithIgnoreCase(outer.getSimpleName(), "dto") ?
+            prefix = BaseIdDto.class.isAssignableFrom(outer) && StringUtils.endsWithIgnoreCase(outer.getSimpleName(), "dto") ?
                     (outer.getSimpleName().substring(0, outer.getSimpleName().length() - 3) + "." + name) : (outer.getSimpleName() + "." + name);
         } else {
             prefix = EnumDto.class.isAssignableFrom(clas) && StringUtils.endsWithIgnoreCase(name, "dto") ?

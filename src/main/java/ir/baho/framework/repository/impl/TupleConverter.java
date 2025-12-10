@@ -2,17 +2,19 @@ package ir.baho.framework.repository.impl;
 
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
+import org.jspecify.annotations.Nullable;
+import org.springframework.beans.BeanUtils;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.lang.Nullable;
+import org.springframework.data.jpa.util.TupleBackedMap;
+import org.springframework.data.mapping.PreferredConstructor;
+import org.springframework.data.mapping.model.PreferredConstructorDiscoverer;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,8 @@ public class TupleConverter implements Converter<Object, Object> {
 
     private final ReturnedType type;
     private final UnaryOperator<Tuple> tupleWrapper;
+    private final boolean dtoProjection;
+    private final @Nullable PreferredConstructor<?, ?> preferredConstructor;
 
     public TupleConverter(ReturnedType type) {
         this(type, false);
@@ -28,7 +32,68 @@ public class TupleConverter implements Converter<Object, Object> {
     public TupleConverter(ReturnedType type, boolean nativeQuery) {
         Assert.notNull(type, "Returned type must not be null");
         this.type = type;
-        this.tupleWrapper = nativeQuery ? FallbackTupleWrapper::new : UnaryOperator.identity();
+        this.tupleWrapper = nativeQuery ? TupleBackedMap::underscoreAware : UnaryOperator.identity();
+        this.dtoProjection = type.isDtoProjection() && type.needsCustomConstruction();
+
+        if (this.dtoProjection) {
+            this.preferredConstructor = PreferredConstructorDiscoverer.discover(type.getReturnedType());
+        } else {
+            this.preferredConstructor = null;
+        }
+    }
+
+    private static List<Class<?>> getArgumentTypes(Object[] ctorArgs) {
+        List<Class<?>> argTypes = new ArrayList<>(ctorArgs.length);
+
+        for (Object ctorArg : ctorArgs) {
+            argTypes.add(ctorArg == null ? Void.class : ctorArg.getClass());
+        }
+        return argTypes;
+    }
+
+    public static boolean isConstructorCompatible(Constructor<?> constructor, List<Class<?>> argumentTypes) {
+        if (constructor.getParameterCount() != argumentTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < argumentTypes.size(); i++) {
+            MethodParameter methodParameter = MethodParameter.forExecutable(constructor, i);
+            Class<?> argumentType = argumentTypes.get(i);
+
+            if (!areAssignmentCompatible(methodParameter.getParameterType(), argumentType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean areAssignmentCompatible(Class<?> to, Class<?> from) {
+        if (from == Void.class && !to.isPrimitive()) {
+            return true;
+        }
+
+        if (to.isPrimitive()) {
+
+            if (to == Short.TYPE) {
+                return from == Character.class || from == Byte.class;
+            }
+
+            if (to == Integer.TYPE) {
+                return from == Short.class || from == Character.class || from == Byte.class;
+            }
+
+            if (to == Long.TYPE) {
+                return from == Integer.class || from == Short.class || from == Character.class || from == Byte.class;
+            }
+
+            if (to == Double.TYPE) {
+                return from == Float.class;
+            }
+
+            return ClassUtils.isAssignable(to, from);
+        }
+
+        return ClassUtils.isAssignable(to, from);
     }
 
     @Override
@@ -47,159 +112,38 @@ public class TupleConverter implements Converter<Object, Object> {
             }
         }
 
+        if (dtoProjection) {
+            Object[] ctorArgs = new Object[elements.size()];
+            for (int i = 0; i < ctorArgs.length; i++) {
+                ctorArgs[i] = tuple.get(i);
+            }
+
+            List<Class<?>> argTypes = getArgumentTypes(ctorArgs);
+
+            if (preferredConstructor != null && isConstructorCompatible(preferredConstructor.getConstructor(), argTypes)) {
+                return BeanUtils.instantiateClass(preferredConstructor.getConstructor(), ctorArgs);
+            }
+
+            return BeanUtils.instantiateClass(getFirstMatchingConstructor(ctorArgs, argTypes), ctorArgs);
+        }
+
         return new TupleBackedMap(tupleWrapper.apply(tuple));
     }
 
-    static class TupleBackedMap implements Map<String, Object> {
+    private Constructor<?> getFirstMatchingConstructor(Object[] ctorArgs, List<Class<?>> argTypes) {
+        for (Constructor<?> ctor : type.getReturnedType().getDeclaredConstructors()) {
+            if (ctor.getParameterCount() != ctorArgs.length) {
+                continue;
+            }
 
-        private static final String UNMODIFIABLE_MESSAGE = "A TupleBackedMap cannot be modified";
-
-        private final Tuple tuple;
-
-        TupleBackedMap(Tuple tuple) {
-            this.tuple = tuple;
-        }
-
-        @Override
-        public int size() {
-            return tuple.getElements().size();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return tuple.getElements().isEmpty();
-        }
-
-        @Override
-        public boolean containsKey(Object key) {
-            try {
-                tuple.get((String) key);
-                return true;
-            } catch (IllegalArgumentException e) {
-                return false;
+            if (isConstructorCompatible(ctor, argTypes)) {
+                return ctor;
             }
         }
 
-        @Override
-        public boolean containsValue(Object value) {
-            return Arrays.asList(tuple.toArray()).contains(value);
-        }
-
-        @Override
-        @Nullable
-        public Object get(Object key) {
-            if (!(key instanceof String)) {
-                return null;
-            }
-
-            try {
-                return tuple.get((String) key);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-
-        @Override
-        public Object put(String key, Object value) {
-            throw new UnsupportedOperationException(UNMODIFIABLE_MESSAGE);
-        }
-
-        @Override
-        public Object remove(Object key) {
-            throw new UnsupportedOperationException(UNMODIFIABLE_MESSAGE);
-        }
-
-        @Override
-        public void putAll(Map<? extends String, ?> m) {
-            throw new UnsupportedOperationException(UNMODIFIABLE_MESSAGE);
-        }
-
-        @Override
-        public void clear() {
-            throw new UnsupportedOperationException(UNMODIFIABLE_MESSAGE);
-        }
-
-        @Override
-        public Set<String> keySet() {
-            return tuple.getElements().stream().map(TupleElement::getAlias).collect(Collectors.toSet());
-        }
-
-        @Override
-        public Collection<Object> values() {
-            return Arrays.asList(tuple.toArray());
-        }
-
-        @Override
-        public Set<Entry<String, Object>> entrySet() {
-            return tuple.getElements().stream()
-                    .map(e -> new HashMap.SimpleEntry<String, Object>(e.getAlias(), tuple.get(e)))
-                    .collect(Collectors.toSet());
-        }
-
-    }
-
-    static class FallbackTupleWrapper implements Tuple {
-
-        private final Tuple delegate;
-        private final UnaryOperator<String> fallbackNameTransformer = JdbcUtils::convertPropertyNameToUnderscoreName;
-
-        FallbackTupleWrapper(Tuple delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public <X> X get(TupleElement<X> tupleElement) {
-            return get(tupleElement.getAlias(), tupleElement.getJavaType());
-        }
-
-        @Override
-        public <X> X get(String s, Class<X> type) {
-            try {
-                return delegate.get(s, type);
-            } catch (IllegalArgumentException original) {
-                try {
-                    return delegate.get(fallbackNameTransformer.apply(s), type);
-                } catch (IllegalArgumentException next) {
-                    original.addSuppressed(next);
-                    throw original;
-                }
-            }
-        }
-
-        @Override
-        public Object get(String s) {
-            try {
-                return delegate.get(s);
-            } catch (IllegalArgumentException original) {
-                try {
-                    return delegate.get(fallbackNameTransformer.apply(s));
-                } catch (IllegalArgumentException next) {
-                    original.addSuppressed(next);
-                    throw original;
-                }
-            }
-        }
-
-        @Override
-        public <X> X get(int i, Class<X> aClass) {
-            return delegate.get(i, aClass);
-        }
-
-        @Override
-        public Object get(int i) {
-            return delegate.get(i);
-        }
-
-        @Override
-        public Object[] toArray() {
-            return delegate.toArray();
-        }
-
-        @Override
-        public List<TupleElement<?>> getElements() {
-            return delegate.getElements();
-        }
-
+        throw new IllegalStateException(String.format(
+                "Cannot find compatible constructor for DTO projection '%s' accepting '%s'", type.getReturnedType().getName(),
+                argTypes.stream().map(Class::getName).collect(Collectors.joining(", "))));
     }
 
 }

@@ -1,21 +1,24 @@
 package ir.baho.framework.time;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import ir.baho.framework.i18n.DateTimes;
 import ir.baho.framework.service.CurrentUser;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.time.Duration;
 
-@RequiredArgsConstructor
-public class DurationSerializer extends JsonSerializer<Duration> implements Converter<Duration, String> {
+public class DurationSerializer extends StdSerializer<Duration> implements Converter<Duration, String> {
 
     private final DateTimes dateTimes;
     private final CurrentUser currentUser;
+
+    public DurationSerializer(DateTimes dateTimes, CurrentUser currentUser) {
+        super(Duration.class);
+        this.dateTimes = dateTimes;
+        this.currentUser = currentUser;
+    }
 
     @Override
     public String convert(Duration duration) {
@@ -23,8 +26,8 @@ public class DurationSerializer extends JsonSerializer<Duration> implements Conv
     }
 
     @Override
-    public void serialize(Duration duration, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeString(convert(duration));
+    public void serialize(Duration value, JsonGenerator gen, SerializationContext provider) {
+        gen.writeString(convert(value));
     }
 
 }

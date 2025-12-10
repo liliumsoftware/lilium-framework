@@ -1,5 +1,7 @@
 package ir.baho.framework.domain;
 
-public interface BaseProjection {
+import java.io.Serializable;
+
+public interface BaseProjection extends Serializable {
 
 }

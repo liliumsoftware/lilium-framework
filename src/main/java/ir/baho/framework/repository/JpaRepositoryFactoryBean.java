@@ -1,7 +1,6 @@
 package ir.baho.framework.repository;
 
 import ir.baho.framework.converter.StringConverter;
-import ir.baho.framework.i18n.MessageResource;
 import ir.baho.framework.repository.impl.JpaRepositoryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.Setter;
@@ -18,9 +17,6 @@ public class JpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID> extend
     private ApplicationContext applicationContext;
 
     @Autowired
-    private MessageResource messageResource;
-
-    @Autowired
     private List<StringConverter<?>> converters;
 
     @Setter
@@ -32,7 +28,7 @@ public class JpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID> extend
 
     @Override
     protected RepositoryFactorySupport createRepositoryFactory(EntityManager entityManager) {
-        return new JpaRepositoryFactory(applicationContext, entityManager, revisionEntityClass, messageResource, converters);
+        return new JpaRepositoryFactory(applicationContext, entityManager, revisionEntityClass, converters);
     }
 
 }

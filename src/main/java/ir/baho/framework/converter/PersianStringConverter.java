@@ -1,18 +1,20 @@
 package ir.baho.framework.converter;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.ibm.icu.text.ArabicShaping;
 import lombok.SneakyThrows;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.web.bind.annotation.RequestMapping;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
-
-public class PersianStringConverter extends JsonDeserializer<String> implements Converter<String, String> {
+public class PersianStringConverter extends StdDeserializer<String> implements Converter<String, String> {
 
     private static final ArabicShaping SHAPING = new ArabicShaping(ArabicShaping.DIGITS_AN2EN + ArabicShaping.DIGIT_TYPE_AN_EXTENDED);
+
+    public PersianStringConverter() {
+        super(String.class);
+    }
 
     @SneakyThrows
     public static String fix(String source) {
@@ -28,8 +30,8 @@ public class PersianStringConverter extends JsonDeserializer<String> implements 
     }
 
     @Override
-    public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return fix(jsonParser.getValueAsString());
+    public String deserialize(JsonParser p, DeserializationContext ctxt) {
+        return fix(p.getValueAsString());
     }
 
 }

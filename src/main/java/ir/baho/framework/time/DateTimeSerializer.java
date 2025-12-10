@@ -1,21 +1,24 @@
 package ir.baho.framework.time;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import ir.baho.framework.i18n.DateTimes;
 import ir.baho.framework.service.CurrentUser;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
-@RequiredArgsConstructor
-public class DateTimeSerializer extends JsonSerializer<LocalDateTime> implements Converter<LocalDateTime, String> {
+public class DateTimeSerializer extends StdSerializer<LocalDateTime> implements Converter<LocalDateTime, String> {
 
     private final DateTimes dateTimes;
     private final CurrentUser currentUser;
+
+    public DateTimeSerializer(DateTimes dateTimes, CurrentUser currentUser) {
+        super(LocalDateTime.class);
+        this.dateTimes = dateTimes;
+        this.currentUser = currentUser;
+    }
 
     @Override
     public String convert(LocalDateTime localDateTime) {
@@ -23,8 +26,8 @@ public class DateTimeSerializer extends JsonSerializer<LocalDateTime> implements
     }
 
     @Override
-    public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeString(convert(localDateTime));
+    public void serialize(LocalDateTime value, JsonGenerator gen, SerializationContext provider) {
+        gen.writeString(convert(value));
     }
 
 }
