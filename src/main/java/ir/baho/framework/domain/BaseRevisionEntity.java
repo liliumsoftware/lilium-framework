@@ -2,7 +2,9 @@ package ir.baho.framework.domain;
 
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.RevisionTimestamp;
 
@@ -12,6 +14,8 @@ import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @SuperBuilder(toBuilder = true)
 @MappedSuperclass
 public abstract class BaseRevisionEntity<E extends BaseRevisionEntity<E, ID>, ID extends Number & Comparable<ID>> implements Serializable, Comparable<E> {
@@ -24,22 +28,6 @@ public abstract class BaseRevisionEntity<E extends BaseRevisionEntity<E, ID>, ID
     public abstract ID getId();
 
     public abstract void setId(ID id);
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     @Override
     public int compareTo(E o) {

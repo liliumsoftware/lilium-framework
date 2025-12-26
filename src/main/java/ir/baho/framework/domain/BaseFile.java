@@ -6,13 +6,17 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @SuperBuilder(toBuilder = true)
 @MappedSuperclass
 public abstract class BaseFile<E extends BaseFile<E, ID>, ID extends Serializable & Comparable<ID>> extends BaseEntitySimple<E, ID> {
@@ -34,32 +38,16 @@ public abstract class BaseFile<E extends BaseFile<E, ID>, ID extends Serializabl
     @Column(name = "VALUE")
     private byte[] value;
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getType() {
-        return type;
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
-    public int getSize() {
-        return size;
-    }
-
     public void setSize(int size) {
         this.size = size;
-    }
-
-    public byte[] getValue() {
-        return value;
     }
 
     public void setValue(byte[] value) {

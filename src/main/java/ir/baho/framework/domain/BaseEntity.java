@@ -4,7 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.NotAudited;
 import org.javers.core.metamodel.annotation.DiffIgnore;
@@ -17,6 +19,8 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @SuperBuilder(toBuilder = true)
 @MappedSuperclass
 public abstract class BaseEntity<E extends BaseEntity<E, ID>, ID extends Serializable & Comparable<ID>> extends BaseEntitySimple<E, ID> {
@@ -40,29 +44,5 @@ public abstract class BaseEntity<E extends BaseEntity<E, ID>, ID extends Seriali
     @Column(name = "LAST_MODIFIED_BY", nullable = false)
     @Size(max = 100)
     private String lastModifiedBy;
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
 
 }

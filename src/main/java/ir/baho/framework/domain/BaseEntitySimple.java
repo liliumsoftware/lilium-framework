@@ -6,7 +6,9 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.NotAudited;
@@ -21,6 +23,8 @@ import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @SuperBuilder(toBuilder = true)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -63,22 +67,6 @@ public abstract class BaseEntitySimple<E extends BaseEntitySimple<E, ID>, ID ext
     public abstract ID getId();
 
     public abstract void setId(ID id);
-
-    public LocalDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
 
     @Override
     public boolean equals(Object o) {
