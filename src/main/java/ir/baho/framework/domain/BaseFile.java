@@ -38,20 +38,4 @@ public abstract class BaseFile<E extends BaseFile<E, ID>, ID extends Serializabl
     @Column(name = "VALUE")
     private byte[] value;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public void setValue(byte[] value) {
-        this.value = value;
-    }
-
 }

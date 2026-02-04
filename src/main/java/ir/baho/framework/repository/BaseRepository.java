@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,17 +69,6 @@ public interface BaseRepository<E, ID> extends Repository<E, ID> {
         return metadata.getSort() == null || metadata.getSort().length == 0 ? Sort.unsorted() :
                 Sort.by(Stream.of(metadata.getSort()).filter(s -> s.getField() != null)
                         .map(e -> e.isAsc() ? Sort.Order.asc(e.getField()) : Sort.Order.desc(e.getField())).toArray(Sort.Order[]::new));
-    }
-
-    default Sort getSort(SortMetadata metadata, Map<String, Class<?>> paths, Class<?> domain) {
-        if (metadata.getSort() == null || metadata.getSort().length == 0) {
-            return Sort.unsorted();
-        }
-        Arrays.stream(metadata.getSort()).filter(sort -> paths.get(sort.getField()) == null).findAny().ifPresent(sort -> {
-            throw new MetadataFieldAccessException(domain, sort.getField());
-        });
-        return Sort.by(Stream.of(metadata.getSort()).filter(s -> s.getField() != null)
-                .map(e -> e.isAsc() ? Sort.Order.asc(e.getField()) : Sort.Order.desc(e.getField())).toArray(Sort.Order[]::new));
     }
 
     default boolean isNumber(Class<?> type) {

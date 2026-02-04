@@ -68,7 +68,7 @@ public abstract class JpaBaseCustomRepository {
     }
 
     @SuppressWarnings("unchecked")
-    protected <E, P> long getTotal(Root<E> root, CriteriaBuilder criteriaBuilder, Specification<E> specification) {
+    protected <E> long getTotal(Root<E> root, CriteriaBuilder criteriaBuilder, Specification<E> specification) {
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<E> countRoot = (Root<E>) countQuery.from(root.getJavaType());
         countQuery.where(specification.toPredicate(countRoot, countQuery, criteriaBuilder));

@@ -607,7 +607,7 @@ public class DateTimes {
     }
 
     public Duration parseDuration(String duration, DurationType durationType) {
-        if (durationType == null) {
+        if (duration.startsWith("PT")) {
             return Duration.parse(duration);
         }
         boolean negative = false;
