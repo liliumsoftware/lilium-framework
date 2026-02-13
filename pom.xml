@@ -4,13 +4,13 @@
 
     <groupId>com.github.liliumsoftware</groupId>
     <artifactId>lilium-framework</artifactId>
-    <version>5.0.3</version>
+    <version>5.0.4-SNAPSHOT</version>
     <name>lilium-framework</name>
     <description>Lilium framework</description>
 
     <scm>
         <developerConnection>scm:git:git@github.com:liliumsoftware/lilium-framework.git</developerConnection>
-        <tag>5.0.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
