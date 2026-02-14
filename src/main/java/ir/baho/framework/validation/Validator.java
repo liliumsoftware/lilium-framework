@@ -2,7 +2,10 @@ package ir.baho.framework.validation;
 
 import jakarta.validation.Validation;
 import jakarta.validation.ValidatorFactory;
+import org.springframework.scheduling.support.CronExpression;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -158,6 +161,20 @@ public class Validator {
         int[] j = {29, 27, 23, 19, 17};
         int factor = Character.getNumericValue(chars[9]) + 2;
         return IntStream.range(0, 10).map(i -> factor + Character.getNumericValue(chars[i]) * j[i % 5]).sum() % 11 == control;
+    }
+
+    public static boolean isCron(String cron) {
+        if (cron.contains(":")) {
+            try {
+                String[] parts = cron.split(":");
+                ZoneId.of(parts[1]);
+                return CronExpression.isValidExpression(parts[0]);
+            } catch (DateTimeException | NullPointerException e) {
+                return false;
+            }
+        } else {
+            return CronExpression.isValidExpression(cron);
+        }
     }
 
     public static boolean isUsername(String username) {

@@ -2,6 +2,7 @@ ir.baho.framework.validation.impl.AltitudeCheck
 ir.baho.framework.validation.impl.AngleCheck
 ir.baho.framework.validation.impl.ColorCheck
 ir.baho.framework.validation.impl.CompanyIdCheck
+ir.baho.framework.validation.impl.CronCheck
 ir.baho.framework.validation.impl.DigitCheck
 ir.baho.framework.validation.impl.ExactLengthCheck
 ir.baho.framework.validation.impl.ImeiCheck

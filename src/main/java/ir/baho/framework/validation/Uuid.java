@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 @Size(min = 36, max = 36)
 @ExactLength(36)
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER, ElementType.RECORD_COMPONENT, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {})
 @Documented
