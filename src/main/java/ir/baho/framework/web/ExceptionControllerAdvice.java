@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
 import tools.jackson.core.JacksonException;
@@ -68,6 +69,11 @@ public class ExceptionControllerAdvice {
         } catch (JacksonException ex) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         }
+    }
+
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void handleAsyncRequestTimeoutException() {
     }
 
     @ResponseBody
@@ -316,6 +322,25 @@ public class ExceptionControllerAdvice {
 
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+        List<Error> errors = new ArrayList<>();
+        e.getAllErrors().forEach(error -> {
+            if (error instanceof org.springframework.validation.FieldError fe) {
+                String name = fe.getObjectName();
+                String key = StringUtils.endsWithIgnoreCase(name, "dto") ?
+                        (name.substring(0, name.length() - 3) + "." + fe.getField()) : (name + "." + fe.getField());
+                errors.add(new FieldError(fe.getDefaultMessage(), fe.getObjectName(),
+                        messageResource.getMessageOrDefault(StringUtils.capitalize(key), fe.getField()), fe.getRejectedValue(), fe.getCodes()));
+            } else {
+                errors.add(new ObjectError(error.getDefaultMessage(), error.getObjectName()));
+            }
+        });
+        return ResponseEntity.badRequest().body(new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), errors));
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageConversionException.class)
     public HttpError handleHttpMessageConversionException(HttpMessageConversionException e) {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new Error(e.getMessage()));
@@ -335,25 +360,6 @@ public class ExceptionControllerAdvice {
     public HttpError handleException(Exception e) {
         log.error(e.getMessage(), e);
         return new HttpError(HttpStatus.INTERNAL_SERVER_ERROR, messageResource.getMessage("internal.server.error"));
-    }
-
-    @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
-        List<Error> errors = new ArrayList<>();
-        e.getAllErrors().forEach(error -> {
-            if (error instanceof org.springframework.validation.FieldError fe) {
-                String name = fe.getObjectName();
-                String key = StringUtils.endsWithIgnoreCase(name, "dto") ?
-                        (name.substring(0, name.length() - 3) + "." + fe.getField()) : (name + "." + fe.getField());
-                errors.add(new FieldError(fe.getDefaultMessage(), fe.getObjectName(),
-                        messageResource.getMessageOrDefault(StringUtils.capitalize(key), fe.getField()), fe.getRejectedValue(), fe.getCodes()));
-            } else {
-                errors.add(new ObjectError(error.getDefaultMessage(), error.getObjectName()));
-            }
-        });
-        return ResponseEntity.badRequest().body(new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), errors));
     }
 
 }
