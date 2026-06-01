@@ -9,7 +9,6 @@ import lombok.SneakyThrows;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Locale;
 
 public class DateTimeConverter extends StringConverter<LocalDateTime> {
@@ -30,7 +29,7 @@ public class DateTimeConverter extends StringConverter<LocalDateTime> {
             return convert(source);
         }
         DateFormat dateFormat = dateTimes.getDateFormat(getFormat(), getCalendarType());
-        return ZonedDateTime.ofInstant(dateFormat.parse(source).toInstant(), ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+        return LocalDateTime.ofInstant(dateFormat.parse(source).toInstant(), ZoneId.of("UTC"));
     }
 
     @Override

@@ -27,7 +27,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
@@ -588,7 +587,7 @@ public class DateTimes {
     public LocalDate parseDate(String date, String pattern, CalendarType calendarType) {
         DateFormat dateFormat = getDateFormat(pattern == null ? "yyyy-MM-dd" : pattern, calendarType);
         Instant instant = dateFormat.parse(date).toInstant();
-        return instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        return instant.atZone(LocaleContextHolder.getTimeZone().toZoneId()).toLocalDate();
     }
 
     public LocalDateTime parseDateTime(String date, String pattern) {
@@ -598,7 +597,7 @@ public class DateTimes {
     @SneakyThrows
     public LocalDateTime parseDateTime(String date, String pattern, CalendarType calendarType) {
         DateFormat dateFormat = getDateFormat(pattern == null ? "yyyy-MM-dd'T'HH:mm:ss" : pattern, calendarType);
-        return ZonedDateTime.ofInstant(dateFormat.parse(date).toInstant(), LocaleContextHolder.getTimeZone().toZoneId()).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+        return LocalDateTime.ofInstant(dateFormat.parse(date).toInstant(), ZoneId.systemDefault());
     }
 
     public LocalTime parseTime(String time, String pattern) {
@@ -636,7 +635,7 @@ public class DateTimes {
 
     public String format(LocalDate localDate, String pattern, CalendarType calendarType) {
         DateFormat dateFormat = getDateFormat(pattern == null ? "yyyy-MM-dd" : pattern, calendarType);
-        Date date = Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        Date date = Date.from(localDate.atStartOfDay(LocaleContextHolder.getTimeZone().toZoneId()).toInstant());
         return dateFormat.format(date);
     }
 

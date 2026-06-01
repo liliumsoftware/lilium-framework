@@ -35,11 +35,10 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -53,7 +52,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @AutoConfiguration
-@ControllerAdvice(annotations = RestController.class)
+@RestControllerAdvice(annotations = RestController.class)
 @RequiredArgsConstructor
 @Slf4j
 public class ExceptionControllerAdvice {
@@ -61,7 +60,6 @@ public class ExceptionControllerAdvice {
     private final MessageResource messageResource;
     private final JsonMapper mapper;
 
-    @ResponseBody
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<?> handleHttpClientErrorException(HttpClientErrorException e) {
         try {
@@ -76,14 +74,12 @@ public class ExceptionControllerAdvice {
     public void handleAsyncRequestTimeoutException() {
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DuplicateKeyException.class)
     public HttpError handleDuplicateKeyException() {
         return new HttpError(HttpStatus.CONFLICT, messageResource.getMessage("entity.duplicate.key"));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public HttpError handleDataIntegrityViolationException(DataIntegrityViolationException e) {
@@ -124,14 +120,12 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(OptimisticLockingFailureException.class)
     public HttpError handleOptimisticLockingFailureException() {
         return new HttpError(HttpStatus.CONFLICT, messageResource.getMessage("entity.concurrent.modify"));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(ConflictException.class)
     public HttpError handleConflictException(ConflictException e) {
@@ -144,7 +138,6 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.CONFLICT, e.getMessage(), errors);
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.FAILED_DEPENDENCY)
     @ExceptionHandler(DependencyException.class)
     public HttpError handleDependencyException(DependencyException e) {
@@ -157,14 +150,12 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.FAILED_DEPENDENCY, e.getMessage(), errors);
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.FAILED_DEPENDENCY)
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
     public HttpError handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException e) {
         return new HttpError(HttpStatus.FAILED_DEPENDENCY, messageResource.getMessage("entity.incorrect.size", e.getExpectedSize()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
     public HttpError handleAccessDeniedException(AccessDeniedException e) {
@@ -177,14 +168,12 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.FORBIDDEN, e.getMessage(), errors);
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public HttpError handleEmptyResultDataAccessException() {
         return new HttpError(HttpStatus.NOT_FOUND, messageResource.getMessage("entity.not.found"));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public HttpError handleNotFoundException(NotFoundException e) {
@@ -197,7 +186,6 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.NOT_FOUND, e.getMessage(), errors);
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     @ExceptionHandler(InvalidFileException.class)
     public HttpError handleInvalidFileException(InvalidFileException e) {
@@ -210,20 +198,17 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, e.getMessage(), errors);
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.NOT_MODIFIED)
     @ExceptionHandler(NotModifiedException.class)
     public void handleNotModifiedException() {
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
     @ExceptionHandler(PreconditionFailedException.class)
     public HttpError handlePreconditionFailedException(PreconditionFailedException e) {
         return new HttpError(HttpStatus.PRECONDITION_FAILED, messageResource.getMessage("entity.current.version", e.getVersion()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
     public HttpError handleConstraintViolationException(jakarta.validation.ConstraintViolationException e) {
@@ -234,7 +219,6 @@ public class ExceptionControllerAdvice {
                 .collect(Collectors.toList()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(PropertyReferenceException.class)
     public HttpError handlePropertyReferenceException(PropertyReferenceException e) {
@@ -255,7 +239,6 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new FieldError(message, type, name, e.getPropertyName(), potentialMatches));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MetadataConvertException.class)
     public HttpError handleMetadataConvertException(MetadataConvertException e) {
@@ -265,7 +248,6 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new FieldError(message, type, name, e.getValue()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MetadataFieldAccessException.class)
     public HttpError handleMetadataFieldAccessException(MetadataFieldAccessException e) {
@@ -275,7 +257,6 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new FieldError(message, type, name, null));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MetadataConstraintAccessException.class)
     public HttpError handleMetadataConstraintAccessException(MetadataConstraintAccessException e) {
@@ -285,7 +266,6 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new FieldError(message, type, name, e.getConstraint()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValidationException.class)
     public HttpError handleValidationException(ValidationException e) {
@@ -298,14 +278,12 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), errors);
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMediaTypeException.class)
     public HttpError handleHttpMediaTypeException(HttpMediaTypeException e) {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public HttpError handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
@@ -313,14 +291,12 @@ public class ExceptionControllerAdvice {
                 e.getParameter().getContainingClass().getSimpleName(), e.getName(), e.getValue()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MultipartException.class)
     public HttpError handleMissingServletRequestPartException(MultipartException e) {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new Error(e.getMessage()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
@@ -339,14 +315,12 @@ public class ExceptionControllerAdvice {
         return ResponseEntity.badRequest().body(new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), errors));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageConversionException.class)
     public HttpError handleHttpMessageConversionException(HttpMessageConversionException e) {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new Error(e.getMessage()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ExceptionHandler(ServiceUnavailableException.class)
     public HttpError handleException(ServiceUnavailableException e) {
@@ -354,7 +328,6 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.SERVICE_UNAVAILABLE, messageResource.getMessage("service.unavailable", e.getService()));
     }
 
-    @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public HttpError handleException(Exception e) {
