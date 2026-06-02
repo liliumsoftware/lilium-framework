@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
@@ -72,6 +73,13 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(AsyncRequestTimeoutException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void handleAsyncRequestTimeoutException() {
+    }
+
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncRequestNotUsableException() {
+        // Client disconnected mid-stream (typical for SSE). The underlying response
+        // is already broken; swallow so the framework doesn't try to write a JSON
+        // error body to a text/event-stream response.
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)

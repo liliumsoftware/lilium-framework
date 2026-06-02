@@ -697,13 +697,24 @@ public class DateTimes {
     }
 
     public LocalDateTime atStartOfDay(LocalDateTime dateTime) {
-        return dateTime.with(ChronoField.NANO_OF_DAY, 0).atZone(LocaleContextHolder.getTimeZone().toZoneId())
-                .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+        ZoneId userZone = LocaleContextHolder.getTimeZone().toZoneId();
+        return dateTime.atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(userZone)
+                .toLocalDate()
+                .atStartOfDay(userZone)
+                .withZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
     public LocalDateTime atEndOfDay(LocalDateTime dateTime) {
-        return dateTime.with(ChronoField.NANO_OF_DAY, LocalTime.MAX.toNanoOfDay()).atZone(LocaleContextHolder.getTimeZone().toZoneId())
-                .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+        ZoneId userZone = LocaleContextHolder.getTimeZone().toZoneId();
+        return dateTime.atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(userZone)
+                .toLocalDate()
+                .atTime(LocalTime.MAX)
+                .atZone(userZone)
+                .withZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
     public LocalDateTime atStartOfDay(LocalDate date) {
@@ -714,6 +725,32 @@ public class DateTimes {
     public LocalDateTime atEndOfDay(LocalDate date) {
         return date.atTime(LocalTime.MAX).atZone(LocaleContextHolder.getTimeZone().toZoneId())
                 .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public LocalDate userLocalDate(LocalDateTime jvmZoneDateTime) {
+        return jvmZoneDateTime.atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(LocaleContextHolder.getTimeZone().toZoneId())
+                .toLocalDate();
+    }
+
+    public LocalTime userLocalTime(LocalDateTime jvmZoneDateTime) {
+        return jvmZoneDateTime.atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(LocaleContextHolder.getTimeZone().toZoneId())
+                .toLocalTime();
+    }
+
+    public LocalDateTime userLocalDateTime(LocalDateTime jvmZoneDateTime) {
+        return jvmZoneDateTime.atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(LocaleContextHolder.getTimeZone().toZoneId())
+                .toLocalDateTime();
+    }
+
+    public LocalDate today() {
+        return LocalDate.now(LocaleContextHolder.getTimeZone().toZoneId());
+    }
+
+    public Instant toInstant(LocalDateTime jvmZoneDateTime) {
+        return jvmZoneDateTime.atZone(ZoneId.systemDefault()).toInstant();
     }
 
     public <C extends CalendarDay> LocalDateTime plus(LocalDateTime start, Duration duration, List<C> days) {

@@ -6,4 +6,6 @@ ir.baho.framework.config.UserConfig
 ir.baho.framework.config.WebConfig
 ir.baho.framework.i18n.DateTimes
 ir.baho.framework.i18n.MessageResource
+ir.baho.framework.tracing.RequestIdFilter
+ir.baho.framework.tracing.RequestIdMessagePostProcessor
 ir.baho.framework.web.ExceptionControllerAdvice
