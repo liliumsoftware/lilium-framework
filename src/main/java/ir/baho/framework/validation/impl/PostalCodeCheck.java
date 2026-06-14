@@ -8,10 +8,6 @@ import jakarta.validation.ConstraintValidatorContext;
 public class PostalCodeCheck implements ConstraintValidator<PostalCode, String> {
 
     @Override
-    public void initialize(PostalCode postalCode) {
-    }
-
-    @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         return value == null || value.isBlank() || Validator.isPostalCode(value);
     }

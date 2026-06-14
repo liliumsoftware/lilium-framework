@@ -8,10 +8,6 @@ import jakarta.validation.ConstraintValidatorContext;
 public class LatitudeCheck implements ConstraintValidator<Latitude, Number> {
 
     @Override
-    public void initialize(Latitude username) {
-    }
-
-    @Override
     public boolean isValid(Number value, ConstraintValidatorContext context) {
         return value == null || Validator.isLatitude(value);
     }

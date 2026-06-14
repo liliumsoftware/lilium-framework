@@ -81,19 +81,19 @@ public abstract class CsvReader<T> implements Closeable {
     }
 
     protected int readAsInt(String cell) {
-        return Double.valueOf(cell.replaceAll(",", "")).intValue();
+        return Double.valueOf(cell.replace(",", "")).intValue();
     }
 
     protected long readAsLong(String cell) {
-        return Double.valueOf(cell.replaceAll(",", "")).longValue();
+        return Double.valueOf(cell.replace(",", "")).longValue();
     }
 
     protected double readAsDouble(String cell) {
-        return Double.parseDouble(cell.replaceAll(",", ""));
+        return Double.parseDouble(cell.replace(",", ""));
     }
 
     protected BigDecimal readAsBigDecimal(String cell) {
-        return new BigDecimal(StringUtils.trimToNull(cell.replaceAll(",", "")));
+        return new BigDecimal(StringUtils.trimToNull(cell.replace(",", "")));
     }
 
     protected LocalDateTime readAsDateTime(String cell) {

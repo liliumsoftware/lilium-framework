@@ -8,10 +8,6 @@ import jakarta.validation.ConstraintValidatorContext;
 public class ImeiCheck implements ConstraintValidator<Imei, String> {
 
     @Override
-    public void initialize(Imei id) {
-    }
-
-    @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         return value == null || value.isBlank() || Validator.isImei(value);
     }

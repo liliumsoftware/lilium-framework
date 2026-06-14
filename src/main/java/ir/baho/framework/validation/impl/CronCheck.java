@@ -8,10 +8,6 @@ import jakarta.validation.ConstraintValidatorContext;
 public class CronCheck implements ConstraintValidator<Cron, String> {
 
     @Override
-    public void initialize(Cron cron) {
-    }
-
-    @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         return value == null || value.isBlank() || Validator.isCron(value);
     }

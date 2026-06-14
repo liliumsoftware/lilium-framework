@@ -18,9 +18,9 @@ public class PersianStringConverter extends StdDeserializer<String> implements C
 
     @SneakyThrows
     public static String fix(String source) {
-        return SHAPING.shape(source.replaceAll("ك", "ک")
-                .replaceAll("ي", "ی")
-                .replaceAll("ى", "ی"));
+        return SHAPING.shape(source.replace("ك", "ک")
+                .replace("ي", "ی")
+                .replace("ى", "ی"));
     }
 
     @Override

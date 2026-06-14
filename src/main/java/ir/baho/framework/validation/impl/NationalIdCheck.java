@@ -8,10 +8,6 @@ import jakarta.validation.ConstraintValidatorContext;
 public class NationalIdCheck implements ConstraintValidator<NationalId, String> {
 
     @Override
-    public void initialize(NationalId id) {
-    }
-
-    @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         return value == null || value.isBlank() || Validator.isNationalId(value);
     }

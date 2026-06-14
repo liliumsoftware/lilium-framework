@@ -8,10 +8,6 @@ import jakarta.validation.ConstraintValidatorContext;
 public class AngleCheck implements ConstraintValidator<Angle, Number> {
 
     @Override
-    public void initialize(Angle username) {
-    }
-
-    @Override
     public boolean isValid(Number value, ConstraintValidatorContext context) {
         return value == null || Validator.isAngle(value);
     }

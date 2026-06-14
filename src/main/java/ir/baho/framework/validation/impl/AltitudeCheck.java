@@ -8,10 +8,6 @@ import jakarta.validation.ConstraintValidatorContext;
 public class AltitudeCheck implements ConstraintValidator<Altitude, Number> {
 
     @Override
-    public void initialize(Altitude username) {
-    }
-
-    @Override
     public boolean isValid(Number value, ConstraintValidatorContext context) {
         return value == null || Validator.isAltitude(value);
     }

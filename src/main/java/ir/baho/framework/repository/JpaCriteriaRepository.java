@@ -28,7 +28,7 @@ public interface JpaCriteriaRepository<E extends Entity<?, ID>, ID extends Seria
     char SEPARATOR = '.';
 
     @SafeVarargs
-    static <T> boolean containsAttribute(Metadata metadata, Expression<T> expression, Attribute<T, ?>... attributes) {
+    static <T> boolean containsAttribute(Metadata metadata, Expression<T> expression, Attribute<? super T, ?>... attributes) {
         if (metadata == null) {
             return false;
         }
