@@ -29,7 +29,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.core.PropertyReferenceException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.util.StringUtils;
@@ -40,10 +42,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
-import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -56,7 +58,7 @@ import java.util.stream.Stream;
 @RestControllerAdvice(annotations = RestController.class)
 @RequiredArgsConstructor
 @Slf4j
-public class ExceptionControllerAdvice {
+public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private final MessageResource messageResource;
     private final JsonMapper mapper;
@@ -68,18 +70,6 @@ public class ExceptionControllerAdvice {
         } catch (JacksonException ex) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         }
-    }
-
-    @ExceptionHandler(AsyncRequestTimeoutException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void handleAsyncRequestTimeoutException() {
-    }
-
-    @ExceptionHandler(AsyncRequestNotUsableException.class)
-    public void handleAsyncRequestNotUsableException() {
-        // Client disconnected mid-stream (typical for SSE). The underlying response
-        // is already broken; swallow so the framework doesn't try to write a JSON
-        // error body to a text/event-stream response.
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -305,9 +295,8 @@ public class ExceptionControllerAdvice {
         return new HttpError(HttpStatus.BAD_REQUEST, e.getMessage(), new Error(e.getMessage()));
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         List<Error> errors = new ArrayList<>();
         e.getAllErrors().forEach(error -> {
             if (error instanceof org.springframework.validation.FieldError fe) {
